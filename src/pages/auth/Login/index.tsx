@@ -19,6 +19,8 @@ function Login() {
   const [loginData, setLoginData] = useState<{ id: string; password: string }>({
     // id: '',
     // password: '',
+    
+    // test
     id: 'master@ablestor.com',
     password: 'asdf1234!',
   });

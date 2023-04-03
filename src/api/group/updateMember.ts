@@ -21,7 +21,7 @@ export async function updateMember({
   path,
   data,
   headers,
-}: UpdateMemberProps): Promise<UpdateMemberResponse> {
+}: UpdateMemberProps): Promise<UpdateMemberResponse | false> {
   const response = await authenticateRequest<UpdateMemberResponse>({
     method: 'patch',
     url: `/api/v1/admin/members/${path.groupMemberId}`,

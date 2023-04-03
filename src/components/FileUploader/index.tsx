@@ -12,9 +12,9 @@ const UPLOAD_TEXT = '마우스로 파일을 끌어오거나 직접 선택해 주
 const BUTTON_UPLOAD_TEXT = '파일 선택';
 
 function FileUploader({
+  isDropzone = true,
   text = UPLOAD_TEXT,
   buttonText = BUTTON_UPLOAD_TEXT,
-  isUpload,
   accept,
   setIsUpload,
   upload,
@@ -50,6 +50,7 @@ function FileUploader({
     blockEventBubbling(e);
 
     const files = e.dataTransfer.files;
+    //TODO: accept로 바꿔야함
     const abledUploadExtArr = ['csv', 'xlsx'];
 
     dragCounterRef.current = dragCounterRef.current - 1;
@@ -68,6 +69,7 @@ function FileUploader({
 
   const changeFileInput = (e: ChangeEvent<HTMLInputElement>) => {
     const { files } = e.target;
+
     if (files) sucessUpload(files);
   };
 
@@ -76,16 +78,30 @@ function FileUploader({
     setIsUpload && setIsUpload(true);
   };
 
+  if (isDropzone) {
+    return (
+      <S.FileUplaodBox
+        onDragEnter={handleEnter}
+        onDragLeave={handleOut}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}>
+        <Text>{text}</Text>
+        <input
+          ref={inputFileRef}
+          type='file'
+          accept={accept?.join(',')}
+          onChange={changeFileInput}
+        />
+        <Button onClick={clickFileUpload}>{buttonText}</Button>
+      </S.FileUplaodBox>
+    );
+  }
+
   return (
-    <S.FileUplaodBox
-      onDragEnter={handleEnter}
-      onDragLeave={handleOut}
-      onDragOver={handleDrag}
-      onDrop={handleDrop}>
-      <Text>{text}</Text>
+    <S.FileUploadButtonBox>
       <input ref={inputFileRef} type='file' accept={accept?.join(',')} onChange={changeFileInput} />
       <Button onClick={clickFileUpload}>{buttonText}</Button>
-    </S.FileUplaodBox>
+    </S.FileUploadButtonBox>
   );
 }
 

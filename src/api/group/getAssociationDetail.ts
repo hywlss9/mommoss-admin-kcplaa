@@ -17,7 +17,7 @@ interface GetAssociationDetailProps {
 export async function getAssociationDetail({
   path,
   headers,
-}: GetAssociationDetailProps): Promise<GetAssociationDetailResponse> {
+}: GetAssociationDetailProps): Promise<GetAssociationDetailResponse | false> {
   const response = await authenticateRequest<GetAssociationDetailResponse>({
     method: 'get',
     url: `/api/v1/admin/associations/teams/${path.teamId}`,

@@ -15,7 +15,10 @@ interface PostPushProps {
 
 type PostSurveysResponse = unknown;
 
-export async function postPush({ data, headers }: PostPushProps): Promise<PostSurveysResponse> {
+export async function postPush({
+  data,
+  headers,
+}: PostPushProps): Promise<PostSurveysResponse | false> {
   const response = await authenticateRequest<PostSurveysResponse>({
     method: 'post',
     url: `/api/v1/admin/notifications`,

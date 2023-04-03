@@ -6,6 +6,7 @@ export type ModalNames =
   | 'createNoticeCategory'
   | 'createOrganization'
   | 'createPushCategory'
+  | 'createBanner'
   | 'createMember'
   | 'createMembers'
   | 'createVideo'
@@ -20,5 +21,6 @@ export type ModalNames =
   | 'rejectedFamilyEvent'
   | 'showRejectReason'
   | 'updateAdmin'
+  | 'updateBanner'
   | 'updateNotice'
   | 'updateSurvey';

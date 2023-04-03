@@ -16,7 +16,7 @@ type PostSurveysResponse = unknown;
 export async function postSurvey({
   data,
   headers,
-}: PostSurveysProps): Promise<PostSurveysResponse> {
+}: PostSurveysProps): Promise<PostSurveysResponse | false> {
   const response = await authenticateRequest<PostSurveysResponse>({
     method: 'post',
     url: `/api/v1/admin/surveys`,

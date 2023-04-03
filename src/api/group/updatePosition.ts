@@ -21,7 +21,7 @@ export async function updatePosition({
   path,
   data,
   headers,
-}: UpdatePositionProps): Promise<UpdatePositionResponse> {
+}: UpdatePositionProps): Promise<UpdatePositionResponse | false> {
   const response = await authenticateRequest<UpdatePositionResponse>({
     method: 'patch',
     url: `/api/v1/admin/positions/${path.positionId}`,

@@ -23,7 +23,7 @@ interface CreateNoticeCategoryResponse {
 export async function createNoticeCategory({
   data,
   headers,
-}: CreateNoticeCategoryProps): Promise<CreateNoticeCategoryResponse> {
+}: CreateNoticeCategoryProps): Promise<CreateNoticeCategoryResponse | false> {
   const response = await authenticateRequest<CreateNoticeCategoryResponse>({
     method: 'post',
     url: `/api/v1/admin/notices/categories`,

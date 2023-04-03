@@ -14,7 +14,10 @@ interface DeleteVideoProps {
 
 type DeleteVideoResponse = unknown;
 
-export async function deleteVideos({ data, headers }: DeleteVideoProps) {
+export async function deleteVideos({
+  data,
+  headers,
+}: DeleteVideoProps): Promise<DeleteVideoResponse | false> {
   const response = await authenticateRequest<DeleteVideoResponse>({
     method: 'delete',
     url: `/api/v1/admin/video-posts`,

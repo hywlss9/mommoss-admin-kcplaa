@@ -39,7 +39,9 @@ function useGetAssociation(props?: Partial<GetAssociationQuery>) {
     },
   );
 
-  const data = response.data?.pages?.filter(v => v)?.flatMap(data => data?.rows?.map(v => v)) || [];
+  const data =
+    response.data?.pages?.filter(v => v)?.flatMap(data => (data ? data?.rows?.map(v => v) : [])) ||
+    [];
 
   return { ...response, data, total };
 }

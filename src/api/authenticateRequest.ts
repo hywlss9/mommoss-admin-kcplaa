@@ -6,6 +6,7 @@ import { store } from '@reduce/index';
 
 import { getToken } from '@api/auth/getToken';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { getRefreshToken } from '@utils/localStorage';
 import logout from '@utils/logout';
 
@@ -13,13 +14,14 @@ interface AuthenticateRequestProps {
   url: string;
   method?: 'get' | 'post' | 'put' | 'delete' | 'patch';
   headers?: any;
-  isFile?: boolean;
   data?: any;
   params?: any;
-  notUseToken?: boolean;
   isAuthorization?: boolean;
-  useGroupId?: boolean;
+  isFile?: boolean;
   notRefresh?: boolean;
+  isDownload?: boolean;
+  useGroupId?: boolean;
+  notUseToken?: boolean;
 }
 
 axios.defaults.adapter = require('axios/lib/adapters/http');
@@ -52,20 +54,21 @@ export async function authenticateRequest<T = any>({
   url,
   method,
   headers,
-  isFile,
   data,
   params,
   isAuthorization,
+  isFile,
+  isDownload,
   notRefresh,
   useGroupId = true,
   notUseToken = false,
-}: AuthenticateRequestProps): Promise<T> {
+}: AuthenticateRequestProps): Promise<T | false> {
   // axios 요청
   const request = async (token: string | null, refreshToken: string | null) => {
     const { groupInfo } = store.getState().group;
 
     const isUseToken = !url.includes('auth');
-    console.log('request: ', { url, isUseToken });
+    console.log('request: ', { url, isUseToken, groupInfo });
 
     return await axios({
       url,
@@ -80,6 +83,7 @@ export async function authenticateRequest<T = any>({
         ...(isFile && { content: 'multipart/form-data' }),
         ...headers,
       },
+      ...(isDownload && { responseType: 'blob' }),
       ...(isUseToken && {
         cancelToken: new CancelToken(c => {
           cancel = c;
@@ -91,7 +95,10 @@ export async function authenticateRequest<T = any>({
   // 401 토큰 에러로 인한 재요청
   const retry = async () => {
     try {
-      const { accessToken: currentToken, refreshToken: currentRefreshToken } = await getToken();
+      const tokenResponse = await getToken();
+      if (getIsResponseFalse(tokenResponse)) return false;
+
+      const { accessToken: currentToken, refreshToken: currentRefreshToken } = tokenResponse;
       const response = await request(currentToken, currentRefreshToken);
 
       return response.data;
@@ -124,9 +131,7 @@ export async function authenticateRequest<T = any>({
       const response = error.response;
       const errorMessage = response?.data?.message;
 
-      if (!notRefresh && response?.status === 401) {
-        await retry();
-      }
+      if (!notRefresh && response?.status === 401) await retry();
 
       console.log({ error });
       if (errorMessage && response?.status !== 401) message.error(errorMessage);

@@ -47,7 +47,7 @@ function UpdateAdminModal({ admin }: T.UpdateAdminModalProps) {
     close();
   };
 
-  const footerButtons = [
+  const footerBtns = [
     <Button key='cancel' onClick={close}>
       취소
     </Button>,
@@ -57,12 +57,7 @@ function UpdateAdminModal({ admin }: T.UpdateAdminModalProps) {
   ];
 
   return (
-    <Modal
-      open={true}
-      title='관리자 설정 수정'
-      footer={footerButtons}
-      width='800px'
-      onCancel={close}>
+    <Modal open={true} title='관리자 설정 수정' footer={footerBtns} width='800px' onCancel={close}>
       <Form colon={false} labelCol={{ span: 3 }} labelAlign='left'>
         <Form.Item label='이름'>
           <Text>{user?.name}</Text>

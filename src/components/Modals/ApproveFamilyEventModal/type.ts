@@ -1,7 +1,7 @@
-import type { GetFamiyEventResponse } from '@api/event/getFamilyEvent';
+import type { GetFamilyEventResponse } from '@api/event/getFamilyEvent';
 
 interface ApproveFamilyEventModalProps {
-  event: GetFamiyEventResponse;
+  event: GetFamilyEventResponse;
   radioOptions: radioOptions[];
 }
 

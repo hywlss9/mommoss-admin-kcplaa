@@ -17,7 +17,7 @@ type CreateMemberResponse = components['schemas']['CreateGroupOrganizationMember
 export async function createMember({
   data,
   headers,
-}: CreateMemberProps): Promise<CreateMemberResponse> {
+}: CreateMemberProps): Promise<CreateMemberResponse | false> {
   const response = await authenticateRequest<CreateMemberResponse>({
     method: 'post',
     url: `/api/v1/admin/organizations/members`,

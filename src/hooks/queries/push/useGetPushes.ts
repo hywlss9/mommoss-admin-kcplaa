@@ -9,7 +9,7 @@ function useGetPushes(props?: Partial<GetPushesQuery>) {
   const [total, setTotal] = useState<number>(0);
 
   const response = useInfiniteQuery(
-    ['PUSHES', props?.q, props?.dir],
+    ['PUSHES', props?.page, props?.q, props?.dir],
     async ({ pageParam: page = 1 }) => {
       const query: GetPushesQuery = {
         page,
@@ -41,7 +41,9 @@ function useGetPushes(props?: Partial<GetPushesQuery>) {
     },
   );
 
-  const data = response.data?.pages?.filter(v => v)?.flatMap(data => data?.rows?.map(v => v)) || [];
+  const data =
+    response.data?.pages?.filter(v => v)?.flatMap(data => (data ? data?.rows?.map(v => v) : [])) ||
+    [];
 
   return { ...response, data, total };
 }

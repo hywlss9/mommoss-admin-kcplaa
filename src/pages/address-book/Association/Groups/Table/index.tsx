@@ -43,11 +43,14 @@ function AssociationGroupTable({
       render: (_, { id, name }) => {
         const select = () => selectAssociationId(id);
 
-        const handleDeleteAssociationModal = () => openDeleteAssociationModal(id, name);
+        const handleDeleteAssociationModal = (e: MouseEvent) => {
+          e.stopPropagation();
+          openDeleteAssociationModal(id, name);
+        };
 
         return (
-          <S.GroupTitleBox>
-            <Text onClick={select}>{name}</Text>
+          <S.GroupTitleBox onClick={select}>
+            <Text cursor='pointer'>{name}</Text>
             <Trash onClick={handleDeleteAssociationModal} />
           </S.GroupTitleBox>
         );
@@ -65,11 +68,15 @@ function AssociationGroupTable({
       return false;
     }
 
+    setPage(1);
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
   const resetSearchValue = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue(undefined);
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue(undefined);
+    }
   };
 
   const openDeleteAssociationModal = (id: number, name: string) => {
@@ -112,11 +119,12 @@ function AssociationGroupTable({
         dataSource={dataSource}
         loading={isLoading}
         pagination={{
+          current: page,
+          pageSize: PAGE_SIZE,
           position: ['bottomCenter'],
           total: dataSource.length,
           showSizeChanger: false,
           onChange: setPage,
-          pageSize: PAGE_SIZE,
         }}
         {...(isMoveSelection && {
           rowSelection: {

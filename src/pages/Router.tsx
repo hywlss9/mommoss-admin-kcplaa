@@ -8,11 +8,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import type { RootState } from '@reduce';
-import { setGroup } from '@reduce/group';
+import { setGroupInfo } from '@reduce/group';
 
 import { getToken } from '@api/auth/getToken';
 import { getGroupInfo, getGroups } from '@api/group';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { getHasKeepLogin, getRefreshToken } from '@utils/localStorage';
 import logout from '@utils/logout';
 
@@ -29,6 +30,7 @@ import Info from '@pages/business/Info';
 import Members from '@pages/business/Members';
 import Organization from '@pages/business/Organization';
 import Position from '@pages/business/Position';
+import Banner from '@pages/home/Banner';
 import FamilyEvent from '@pages/service/FamilyEvent';
 import Notice from '@pages/service/Notice';
 import Push from '@pages/service/Push';
@@ -74,7 +76,7 @@ function Router() {
 
       if (!response) return false;
 
-      dispatch(setGroup(response));
+      dispatch(setGroupInfo(response));
     };
 
     _getGroups();
@@ -95,20 +97,22 @@ function Router() {
 
       if (!accessToken && refreshToken) {
         console.log('try get accessToken from refreshToken');
-        await getToken().then(response => {
-          const { accessToken } = response;
-          setIsLoading(false);
+        const response = await getToken();
 
-          if (!accessToken) {
-            message.error({
-              content: '보안 토큰이 만료되었습니다. 다시 로그인해주세요.',
-              key: 'expired-token',
-            });
-            logout();
-            return;
-          }
-          console.log('success get accessToken', { response, accessToken });
-        });
+        if (getIsResponseFalse(response)) return false;
+
+        const { accessToken } = response;
+        setIsLoading(false);
+
+        if (!accessToken) {
+          message.error({
+            content: '보안 토큰이 만료되었습니다. 다시 로그인해주세요.',
+            key: 'expired-token',
+          });
+          logout();
+          return;
+        }
+        console.log('success get accessToken', { response, accessToken });
       }
 
       setIsLoading(false);
@@ -151,9 +155,16 @@ function Router() {
               <>
                 <Route path='/' element={<Navigate to='/business' replace={true} />} />
 
+                {/* 홈화면 관리 | home */}
+                <Route path='/home' element={<Navigate to='/home/banner' replace={true} />} />
+                <Route path='/home/banner' element={<Banner />} />
+
                 {/* 사업장 관리 | business */}
-                <Route path='/business' element={<Navigate to='/business/info' replace={true} />} />
-                <Route path='/business/info' element={<Info />} />
+                <Route
+                  path='/business'
+                  element={<Navigate to='/business/member' replace={true} />}
+                />
+                {/* <Route path='/business/info' element={<Info />} /> */}
                 <Route path='/business/member' element={<Members />} />
                 <Route path='/business/organization' element={<Organization />} />
                 <Route path='/business/position' element={<Position />} />

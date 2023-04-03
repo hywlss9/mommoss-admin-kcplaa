@@ -13,7 +13,10 @@ interface GetSurveysProps {
 
 type GetSurveysResponse = components['schemas']['List$Survey$h9t27cjaT6UA-eivxAOfCQ'];
 
-export async function getSurveys({ query, headers }: GetSurveysProps): Promise<GetSurveysResponse> {
+export async function getSurveys({
+  query,
+  headers,
+}: GetSurveysProps): Promise<GetSurveysResponse | false> {
   const response = await authenticateRequest<GetSurveysResponse>({
     method: 'get',
     url: `/api/v1/admin/surveys`,

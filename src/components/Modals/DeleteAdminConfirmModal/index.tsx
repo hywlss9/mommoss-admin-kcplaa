@@ -19,7 +19,7 @@ function DeleteAdminConfirmModal({ name }: T.DeleteAdminComfirmModalProps) {
 
   const close = () => dispatch(closeModal('deleteAdminConfirm'));
 
-  const footerButtons = [
+  const footerBtns = [
     <Button key='cancel' onClick={close}>
       취소
     </Button>,
@@ -29,7 +29,7 @@ function DeleteAdminConfirmModal({ name }: T.DeleteAdminComfirmModalProps) {
   ];
 
   return (
-    <Modal open={true} centered={true} closable={false} footer={footerButtons} onCancel={close}>
+    <Modal open={true} centered={true} closable={false} footer={footerBtns} onCancel={close}>
       <Text>{name}님을 관리자에서 해제하시겠습니까?</Text>
     </Modal>
   );

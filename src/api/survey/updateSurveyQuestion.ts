@@ -21,7 +21,7 @@ export async function updateSurveyQuestion({
   path,
   data,
   headers,
-}: UpdateSurveyQuestionProps): Promise<UpdateSurveyQuestionResponse> {
+}: UpdateSurveyQuestionProps): Promise<UpdateSurveyQuestionResponse | false> {
   const response = await authenticateRequest<UpdateSurveyQuestionResponse>({
     method: 'patch',
     url: `/api/v1/admin/surveys/${path.surveyId}/questions/${path.questionId}`,

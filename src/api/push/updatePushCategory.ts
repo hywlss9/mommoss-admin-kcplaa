@@ -21,7 +21,7 @@ export async function updatePushCategory({
   path,
   data,
   headers,
-}: UpdateNoticeProps): Promise<UpdatePushCategoryResponse> {
+}: UpdateNoticeProps): Promise<UpdatePushCategoryResponse | false> {
   const response = await authenticateRequest<UpdatePushCategoryResponse>({
     method: 'patch',
     url: `/api/v1/admin/notifications/categories/${path.categoryId}`,

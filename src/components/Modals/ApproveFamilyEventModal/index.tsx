@@ -7,9 +7,15 @@ import { useDispatch } from 'react-redux';
 import { closeModal, openModal } from '@reduce/modals';
 
 import { updateFamilyEvent } from '@api/event';
+import { getGroupFile } from '@api/file';
 
+import downloadBlob from '@utils/downloadBlob';
 import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { trigger } from '@utils/globalEvents';
+
+import colors from '@constants/colors';
+
+import Text from '@components/Text';
 
 import ApproveFuneral from './ApproveFuneral';
 import ApproveOpening from './ApproveOpening';
@@ -24,7 +30,20 @@ const options = [
 ];
 
 function ApproveFamilyEventModal({ event }: T.ApproveFamilyEventModalProps) {
-  const { type, contacts, remarks, paymentAccount, approveStatus, id, rejectReason } = event;
+  const {
+    id,
+    type,
+    contacts,
+    remarks,
+    paymentAccount,
+    approveStatus,
+    rejectReason,
+    attachedFiles,
+  } = event;
+
+  useEffect(() => {
+    console.log({ event });
+  }, [event]);
 
   const dispatch = useDispatch();
 
@@ -44,9 +63,7 @@ function ApproveFamilyEventModal({ event }: T.ApproveFamilyEventModalProps) {
     close();
   };
 
-  const rejected = async () => {
-    openRejectedFamilyEventModal(id);
-  };
+  const rejected = async () => openRejectedFamilyEventModal(id);
 
   const openRejectedFamilyEventModal = (id: number) =>
     dispatch(openModal({ name: 'rejectedFamilyEvent', props: { id } }));
@@ -62,8 +79,9 @@ function ApproveFamilyEventModal({ event }: T.ApproveFamilyEventModalProps) {
       승인
     </Button>,
   ];
-  const footerBtn = [
-    <Button key='ok' style={{ width: '70px' }} type='primary' onClick={close}>
+
+  const footerBtns = [
+    <Button key='ok' type='primary' style={{ width: '70px' }} onClick={close}>
       확인
     </Button>,
   ];
@@ -76,22 +94,23 @@ function ApproveFamilyEventModal({ event }: T.ApproveFamilyEventModalProps) {
     <Modal
       open={true}
       bodyStyle={{ overflowY: 'auto', maxHeight: '550px' }}
-      footer={approveStatus === 'pending' ? pendingFooterBtns : footerBtn}
+      footer={approveStatus === 'pending' ? pendingFooterBtns : footerBtns}
       title='경조사 승인처리'
       width='800px'
       onCancel={close}>
       <Form layout='horizontal' colon={false} labelCol={{ span: 4 }} labelAlign='left'>
         <S.Container>
           {(() => {
+            const approveProps = { event, radioOptions };
             switch (type) {
               case 'wedding': {
-                return <ApproveWedding event={event} radioOptions={radioOptions} />;
+                return <ApproveWedding {...approveProps} />;
               }
               case 'funeral': {
-                return <ApproveFuneral event={event} radioOptions={radioOptions} />;
+                return <ApproveFuneral {...approveProps} />;
               }
               case 'opening': {
-                return <ApproveOpening event={event} radioOptions={radioOptions} />;
+                return <ApproveOpening {...approveProps} />;
               }
             }
           })()}
@@ -112,6 +131,33 @@ function ApproveFamilyEventModal({ event }: T.ApproveFamilyEventModalProps) {
           </Form.Item>
           <Form.Item label={'마음 전하실 곳'}>
             <Input value={paymentAccount} disabled={true} />
+          </Form.Item>
+          <Form.Item label={'첨부파일'}>
+            {attachedFiles.map(({ uuid, name, size }) => {
+              const downloadFile = async () => {
+                const response = await getGroupFile({
+                  path: { fileUuid: uuid },
+                  query: { preview: false },
+                });
+
+                if (getIsResponseFalse(response)) {
+                  message.error('파일을 다운로드 할 수 없습니다.');
+                  return false;
+                }
+
+                downloadBlob(response as Blob, name);
+              };
+
+              return (
+                <Text
+                  block={true}
+                  color={colors.BLUE_ORIGIN_1}
+                  cursor='pointer'
+                  onClick={downloadFile}>
+                  {name} / {Math.ceil(size / 1024)}MB
+                </Text>
+              );
+            })}
           </Form.Item>
         </S.Container>
       </Form>

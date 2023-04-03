@@ -10,7 +10,7 @@ type UploadPublicFileResponse = unknown;
 
 export async function uploadPublicFile({
   data,
-}: UploadPublicFileProps): Promise<UploadPublicFileResponse> {
+}: UploadPublicFileProps): Promise<UploadPublicFileResponse | false> {
   const response = await authenticateRequest<UploadPublicFileResponse>({
     method: 'post',
     url: `/api/v1/files/public`,

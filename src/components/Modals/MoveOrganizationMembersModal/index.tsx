@@ -7,6 +7,7 @@ import { closeModal } from '@reduce/modals';
 
 import { createOrganizationMembers } from '@api/group';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { trigger } from '@utils/globalEvents';
 
 import Tree from '@pages/business/Organization/All/Tree';
@@ -18,7 +19,7 @@ function MoveOrganizationMembers({ selectedMembers }: T.MoveOrganizationMembersM
 
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<number | undefined>();
 
-  const close = () => dispatch(closeModal('updateAdmin'));
+  const close = () => dispatch(closeModal('moveOrganizationMembers'));
 
   const save = async () => {
     console.log({ selectedMembers, selectedOrganizationId });
@@ -26,17 +27,22 @@ function MoveOrganizationMembers({ selectedMembers }: T.MoveOrganizationMembersM
 
     const memberIds: number[] = selectedMembers.map(({ userId }) => userId);
 
-    await createOrganizationMembers({
+    const response = await createOrganizationMembers({
       path: { teamId: selectedOrganizationId },
       data: { memberIds },
     });
+
+    if (getIsResponseFalse(response)) {
+      message.error('저장에 실패했습니다. 다시 시도해주세요.');
+      return false;
+    }
 
     message.success('저장되었습니다.');
     trigger('SUCCESS_MOVE_ORGANIZATION_MEMBERS');
     close();
   };
 
-  const footerButtons = [
+  const footerBtns = [
     <Button key='cancel' onClick={close}>
       취소
     </Button>,
@@ -49,7 +55,7 @@ function MoveOrganizationMembers({ selectedMembers }: T.MoveOrganizationMembersM
     <Modal
       open={true}
       title='다른 조직으로 이동'
-      footer={footerButtons}
+      footer={footerBtns}
       width='400px'
       bodyStyle={{ paddingTop: '12px' }}
       onCancel={close}>

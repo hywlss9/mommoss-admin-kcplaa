@@ -1,9 +1,10 @@
 import { store } from '@reduce';
-import { setAuth } from '@reduce/auth';
+import { setToken } from '@reduce/auth';
 
 import { authenticateRequest } from '@api/authenticateRequest';
 import testRequest from '@api/testRequest';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { getRefreshToken } from '@utils/localStorage';
 
 interface GetTokenProps {
@@ -15,9 +16,9 @@ interface GetTokenResponse {
   refreshToken: string;
 }
 
-export async function getToken(props?: GetTokenProps): Promise<GetTokenResponse> {
+export async function getToken(props?: GetTokenProps): Promise<GetTokenResponse | false> {
   if (props?.test) {
-    store.dispatch(setAuth({ accessToken: 'accessToken' }));
+    store.dispatch(setToken({ accessToken: 'accessToken' }));
     return testRequest<GetTokenResponse>({
       accessToken: 'accessToken',
       refreshToken: 'refreshToken',
@@ -38,8 +39,13 @@ export async function getToken(props?: GetTokenProps): Promise<GetTokenResponse>
 
   console.log('getToken', { response });
 
-  if (response.accessToken) store.dispatch(setAuth({ accessToken: response.accessToken }));
-  if (response.refreshToken) localStorage.setItem('refreshToken', response.refreshToken);
+  const isResponse = getIsResponseFalse(response);
+  if (!isResponse && response.accessToken) {
+    store.dispatch(setToken({ accessToken: response.accessToken }));
+  }
+  if (!isResponse && response.refreshToken) {
+    localStorage.setItem('refreshToken', response.refreshToken);
+  }
 
   return response;
 }

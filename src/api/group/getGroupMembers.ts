@@ -15,7 +15,10 @@ interface GetGroupMembersProps {
 
 type GetGroupMembersResponse = components['schemas']['List$GroupMember$ibzP2MEdd82eZLNY-2zkUQ'];
 
-export async function getGroupMembers({ query, headers }: GetGroupMembersProps) {
+export async function getGroupMembers({
+  query,
+  headers,
+}: GetGroupMembersProps): Promise<GetGroupMembersResponse | false> {
   const response = await authenticateRequest<GetGroupMembersResponse>({
     method: 'get',
     url: '/api/v1/admin/members',

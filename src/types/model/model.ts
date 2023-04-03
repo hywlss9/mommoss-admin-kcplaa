@@ -105,8 +105,8 @@ export interface paths {
   };
   "/api/v1/members": {
     /**
-     * 내 정보 검색 허용으로 설정된 회원 리스트를 가져옵니다.
-     * 맘모스에 로그인한 적 없는 회원은 검색이 불가능해 deprecated 되었습니다.
+     * 회원 리스트를 가져옵니다.
+     * 맘모스에 로그인한 적 없는 노무사 회원은 검색이 불가능합니다.
      */
     get: operations["GroupMemberController_getGroupMemberList"];
   };
@@ -115,12 +115,8 @@ export interface paths {
     get: operations["GroupMemberController_getMyGroupMember"];
   };
   "/api/v1/members/{groupMemberId}": {
-    /** 내 정보 검색 허용으로 설정된 회원 상세 정보를 가져옵니다. 맘모스에 로그인한 적 없는 회원은 검색이 불가능합니다. 맘모스에 로그인한 적 없는 회원을 찾고 싶다면 /api/v1/kcplaa/members/:kcplaaMemberId 를 사용하세요. */
+    /** 회원 상세 정보를 가져옵니다. 맘모스에 로그인한 적 없는 회원은 검색이 불가능합니다. 맘모스에 로그인한 적 없는 노무사 회원을 찾고 싶다면 /api/v1/kcplaa/members/:kcplaaMemberId 를 사용하세요. */
     get: operations["GroupMemberController_getGroupMember"];
-  };
-  "/api/v1/members/me/searchable": {
-    /** 내 정보 검색 허용 여부를 설정합니다. */
-    patch: operations["GroupMemberController_setSearchable"];
   };
   "/api/v1/admin/banners": {
     /** 그룹 배너 리스트를 가져옵니다. */
@@ -131,10 +127,10 @@ export interface paths {
   "/api/v1/admin/banners/{groupBannerId}": {
     /** groupBannerId에 해당하는 그룹 배너를 가져옵니다. */
     get: operations["AdminGroupBannerController_getGroupBanner"];
-    /** groupBannerId에 해당하는 그룹 배너를 수정합니다. */
-    post: operations["AdminGroupBannerController_updateGroupBanner"];
     /** groupBannerId에 해당하는 그룹 배너를 삭제합니다. */
     delete: operations["AdminGroupBannerController_deleteGroupBanner"];
+    /** groupBannerId에 해당하는 그룹 배너를 수정합니다. */
+    patch: operations["AdminGroupBannerController_updateGroupBanner"];
   };
   "/api/v1/admin/members": {
     /** 모든 그룹 멤버 리스트를 가져옵니다. */
@@ -254,6 +250,14 @@ export interface paths {
   "/api/v1/health-check": {
     get: operations["IndexController_healthCheck"];
   };
+  "/api/v1/kcplaa/members/me/searchable": {
+    /** 노무사 회원 인명록에서 내 정보 검색 허용 여부를 설정합니다. 노무사 회원만 이용 가능합니다. */
+    patch: operations["KcplaaMemberController_setSearchable"];
+  };
+  "/api/v1/kcplaa/members/me/sync": {
+    /** 본인의 노무사 회원 정보를 동기화합니다. 기본적으로는 매일 새벽 2시마다 동기화됩니다. 노무사 회원만 이용 가능합니다. */
+    patch: operations["KcplaaMemberController_syncKcplaaMemberData"];
+  };
   "/api/v1/kcplaa/members": {
     /**
      * 내 정보 검색 허용으로 설정된 노무사 리스트를 가져옵니다.
@@ -262,17 +266,17 @@ export interface paths {
      */
     get: operations["KcplaaMemberController_getKcplaaMemberList"];
   };
-  "/api/v1/kcplaa/members/{kcplaaMemberId}": {
-    /** 노무사 회원 id(kcplaaMemberId)에 해당하는 노무사의 상세 정보를 조회합니다. */
+  "/api/v1/kcplaa/members/{licenseNo}": {
+    /** 노무사 자격증번호(licenseNo)에 해당하는 노무사의 상세 정보를 조회합니다. */
     get: operations["KcplaaMemberController_getKcplaaMemberDetail"];
   };
   "/api/v1/kcplaa/events": {
     /** 경조사 리스트를 조회합니다. */
-    get: operations["KcplaaMemberController_getEventList"];
+    get: operations["KcplaaEventController_getEventList"];
   };
   "/api/v1/kcplaa/events/{kcplaaEventId}": {
     /** 노무사회에 등록된 경조사를 조회합니다. */
-    get: operations["KcplaaMemberController_getEvent"];
+    get: operations["KcplaaEventController_getEvent"];
   };
   "/api/v1/admin/kcplaa/members": {
     /**
@@ -281,6 +285,14 @@ export interface paths {
      * 검색어가 있다면 이름을 기준으로 검색합니다.
      */
     get: operations["AdminKcplaaMemberController_getKcplaaMemberList"];
+  };
+  "/api/v1/admin/kcplaa/members/sync": {
+    /** 노무사 전체 회원 정보를 동기화합니다. 기본적으로는 매일 새벽 2시마다 동기화됩니다. */
+    patch: operations["AdminKcplaaMemberController_refreshKcplaaData"];
+  };
+  "/api/v1/admin/kcplaa/members/{kcplaaMemberId}/sync": {
+    /** kcplaaMemberId에 해당하는 노무사 회원 정보를 동기화합니다. 기본적으로는 매일 새벽 2시마다 동기화됩니다. */
+    patch: operations["AdminKcplaaMemberController_refreshKcplaaMemberData"];
   };
   "/api/v1/notices": {
     /** 자신에게 발송된 공지사항 리스트를 가져옵니다. */
@@ -812,12 +824,49 @@ export interface components {
        */
       remarks?: string;
       /**
+       * @deprecated
        * @description 연관된 노무사 id 리스트. 경조사 신청이 승인되었을 때 이 유저들도 알림 메시지를 받음.
        * @default []
        */
       kcplaaMemberIds: number[];
+      /** @description 경조사에 붙일 파일 id들 */
+      fileIds?: string[];
     };
-    Event$mZFLkyvTelC5g8XnyQrpOw: {
+    "File$0KhelIcqssJxKfi0-pQ-Mw": {
+      ext: string | null;
+      convertibleExt: string | null;
+      /** @description 파일 이름 */
+      name: string;
+      /** @description 파일 mime type */
+      mimeType: string;
+      /** @description 파일 크기 */
+      size: number;
+      /** @description 변환된 파일 확장자 */
+      convertedExt: string | null;
+      /** @description 변환된 파일 mimeType */
+      convertedMimeType: string | null;
+      /** @description 변환된 파일 크기 */
+      convertedSize: number | null;
+      /** @description 파일 uuid, 파일은 uuid를 이름으로 저장됨 */
+      uuid: string;
+      /**
+       * @description 파일 접근 권한 레벨
+       * - public: 공개 파일, 모두 접근 가능(로그인 안해도)
+       * - user: 유저 개인 파일, 해당 파일을 업로드한 유저만 접근 가능
+       * - group: 그룹 파일, 해당 파일이 업로드된 그룹의 멤버들만 접근 가능
+       * @enum {string}
+       */
+      accessLevel: "group" | "user" | "public";
+      /** @description 파일을 업로드한 유저 id */
+      uploaderId: number | null;
+      /** @description 파일이 속한 그룹 id */
+      groupId: number | null;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    Event$2F9pRg9eqpH6BKi3qrJTtg: {
       id: number;
       /** Format: date-time */
       createdAt: string;
@@ -882,13 +931,89 @@ export interface components {
       requestorPhone: string | null;
       /** @description 노무사회 경조사 id, 승인된 경조사는 이 값이 있음 */
       kcplaaEventId: number | null;
+      /** @description 경조사의 첨부파일 */
+      attachedFiles: components["schemas"]["File$0KhelIcqssJxKfi0-pQ-Mw"][];
     };
-    List$Event$mZFLkyvTelC5g8XnyQrpOw: {
-      rows: components["schemas"]["Event$mZFLkyvTelC5g8XnyQrpOw"][];
+    List$Event$2F9pRg9eqpH6BKi3qrJTtg: {
+      rows: components["schemas"]["Event$2F9pRg9eqpH6BKi3qrJTtg"][];
       /** @description 조건에 맞는 값의 전체 개수, limit나 page에 영향을 받지 않는 값 */
       count: number;
     };
-    "User$NSy-VJnYStQvYjo8W9Fv8A": {
+    KcplaaOffice: {
+      /** @description 사무소 이름 */
+      name?: string | null;
+      /** @description 사무소 우편번호 */
+      zipCode?: string | null;
+      /** @description 사무소 주소 */
+      address?: string | null;
+      /** @description 사무소 장소(상세주소) */
+      detailAddress?: string | null;
+      /** @description 사무소 전화번호1 */
+      tel1?: string | null;
+      /** @description 사무소 전화번호2 */
+      tel2?: string | null;
+      /** @description 사무소 전화번호3 */
+      tel3?: string | null;
+      /** @description 사무소 팩스 번호 */
+      faxNumber?: string | null;
+      /** @description 사무소 홈페이지 url */
+      homepage?: string | null;
+    };
+    "KcplaaMember$NSy-VJnYStQvYjo8W9Fv8A": {
+      id: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      office: components["schemas"]["KcplaaOffice"];
+      /** @description 로그인에 사용되는 아이디 */
+      accountId: string;
+      /**
+       * @description 계정 타입. 2: 노무사, 9: 노무사회 홈페이지 관리자 계정
+       * @enum {string}
+       */
+      type:
+        | "Blocked"
+        | "Normal"
+        | "Company"
+        | "LaborAttorney"
+        | "Suspended"
+        | "Admin"
+        | "Master";
+      /**
+       * @description 회원등급. 2: 일반 회원, 9: 관리자, 나머지:몰름
+       * @enum {string}
+       */
+      grade:
+        | "NonMember"
+        | "Unknown1"
+        | "Normal"
+        | "Unknown4"
+        | "Unknown6"
+        | "Suspended"
+        | "Admin";
+      /** @description 이름 */
+      name: string;
+      /** @description 유선전화번호 */
+      landline: string | null;
+      /** @description 휴대전화 번호 */
+      phone: string | null;
+      /** @description 이메일 */
+      email: string | null;
+      /** @description 생년월일 */
+      birth: string | null;
+      /** @description 프로필 이미지 */
+      profileImg: string | null;
+      /** @description 노무사 회원 기수 */
+      licenseCb: number | null;
+      /** @description 노무사 회원 자격증 번호 */
+      licenseNo: number | null;
+      /** @description 회비 미납 월 수 */
+      outstandingMonth: number;
+      /** @description 입회비 납부 여부 */
+      payEntranceFee: boolean;
+    };
+    "User$tmXevqY4-H-GlfT-wTnWJA": {
       id: number;
       /** Format: date-time */
       createdAt: string;
@@ -916,18 +1041,17 @@ export interface components {
       phone: string | null;
       /** @description 계정이 종속된 그룹 id */
       belongingGroupId: number | null;
+      /** @description 노무사회 홈페이지 멤버 */
+      kcplaaMember:
+        | components["schemas"]["KcplaaMember$NSy-VJnYStQvYjo8W9Fv8A"]
+        | null;
     };
-    GroupMember$4vStiE8SM0dkV5ueT4EfiQ: {
+    "GroupMember$fHAmNkAPk0-687kF9K8QAA": {
       id: number;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -940,15 +1064,15 @@ export interface components {
       /** @description 그룹에서 유저가 가지는 직위 id */
       positionId: number | null;
       /** @description 그룹에 속하는 유저 */
-      user: components["schemas"]["User$NSy-VJnYStQvYjo8W9Fv8A"] | null;
+      user: components["schemas"]["User$tmXevqY4-H-GlfT-wTnWJA"] | null;
       /** @description 경조사 신청자인지 여부, false면 경조사를 신청한 사람은 아니지만, 신청 관련 알림메시지를 같이 받는 멤버임 */
       requester: boolean | null;
-      /** @description 경조사 신청자의 노무사 기수 */
+      /** @description 멤버의 노무사 기수 */
       licenseCb: boolean | null;
-      /** @description 경조사 신청자의 노무사 자격증 번호 */
+      /** @description 멤버의 노무사 자격증 번호 */
       licenseNo: boolean | null;
     };
-    Event$4_H5TmjlkNHtTJ3G3Hrwuw: {
+    "Event$XVVAi-yfwQ5XUBu7jTmzrQ": {
       id: number;
       /** Format: date-time */
       createdAt: string;
@@ -1014,10 +1138,12 @@ export interface components {
       /** @description 노무사회 경조사 id, 승인된 경조사는 이 값이 있음 */
       kcplaaEventId: number | null;
       /** @description 경조사 등록 승인 알림을 받을 멤버들 */
-      groupMembers: components["schemas"]["GroupMember$4vStiE8SM0dkV5ueT4EfiQ"][];
+      groupMembers: components["schemas"]["GroupMember$fHAmNkAPk0-687kF9K8QAA"][];
+      /** @description 경조사의 첨부파일 */
+      attachedFiles: components["schemas"]["File$0KhelIcqssJxKfi0-pQ-Mw"][];
     };
-    List$Event$4_H5TmjlkNHtTJ3G3Hrwuw: {
-      rows: components["schemas"]["Event$4_H5TmjlkNHtTJ3G3Hrwuw"][];
+    "List$Event$XVVAi-yfwQ5XUBu7jTmzrQ": {
+      rows: components["schemas"]["Event$XVVAi-yfwQ5XUBu7jTmzrQ"][];
       /** @description 조건에 맞는 값의 전체 개수, limit나 page에 영향을 받지 않는 값 */
       count: number;
     };
@@ -1085,56 +1211,59 @@ export interface components {
        */
       endAt: string | null;
     };
-    KcplaaMemberLabor: {
-      id: number;
-      /** @description 노무사회 홈페이지 멤버 id */
-      kcplaaMemberId: number;
-      /** @description 노무사 회원번호 */
-      laborNo: number;
-      /**
-       * @description 노무사 회원 타입
-       * @enum {string}
-       */
-      laborType: "None" | "Normal" | "Startup" | "Deceased";
-      /**
-       * @description 노무사 회원 자격 구분
-       * @enum {string}
-       */
-      licenseType: "Career" | "Exam";
-      /** @description 노무사 회원 기수 */
-      licenseCb: number;
-      /** @description 노무사 회원 자격증 번호 */
-      licenseNo: number;
-    };
     "KcplaaMember$0KhelIcqssJxKfi0-pQ-Mw": {
       id: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      office: components["schemas"]["KcplaaOffice"];
+      /** @description 로그인에 사용되는 아이디 */
+      accountId: string;
       /**
-       * @description 회원 등급
+       * @description 계정 타입. 2: 노무사, 9: 노무사회 홈페이지 관리자 계정
        * @enum {string}
        */
-      memberType:
+      type:
         | "Blocked"
         | "Normal"
         | "Company"
         | "LaborAttorney"
+        | "Suspended"
         | "Admin"
         | "Master";
+      /**
+       * @description 회원등급. 2: 일반 회원, 9: 관리자, 나머지:몰름
+       * @enum {string}
+       */
+      grade:
+        | "NonMember"
+        | "Unknown1"
+        | "Normal"
+        | "Unknown4"
+        | "Unknown6"
+        | "Suspended"
+        | "Admin";
       /** @description 이름 */
       name: string;
+      /** @description 유선전화번호 */
+      landline: string | null;
       /** @description 휴대전화 번호 */
-      phone: string;
+      phone: string | null;
       /** @description 이메일 */
-      email: string;
-      /** @description 우편주소 */
-      zipCode: string;
-      /** @description 주소 */
-      address: string;
-      /** @description 상세주소 */
-      detailAddress: string;
+      email: string | null;
+      /** @description 생년월일 */
+      birth: string | null;
       /** @description 프로필 이미지 */
-      profileImg: string;
-      /** @description 홈페이지 멤버의 노무사 정보 */
-      labor: components["schemas"]["KcplaaMemberLabor"] | null;
+      profileImg: string | null;
+      /** @description 노무사 회원 기수 */
+      licenseCb: number | null;
+      /** @description 노무사 회원 자격증 번호 */
+      licenseNo: number | null;
+      /** @description 회비 미납 월 수 */
+      outstandingMonth: number;
+      /** @description 입회비 납부 여부 */
+      payEntranceFee: boolean;
     };
     User$f5rkpYUserj4n5xiqriPuw: {
       id: number;
@@ -1175,11 +1304,6 @@ export interface components {
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -1199,73 +1323,78 @@ export interface components {
       /** @description 조건에 맞는 값의 전체 개수, limit나 page에 영향을 받지 않는 값 */
       count: number;
     };
-    "KcplaaOffice_KcplaaMember$0KhelIcqssJxKfi0-pQ-Mw": {
-      id: number;
-      /** @description 노무사회 홈페이지 멤버 id */
-      kcplaaMemberId: number;
-      /** @description 홈페이지 멤버의 노무사 정보 table id */
-      kcplaaMemberLaborId: string;
-      /** @description 노무사 이름 */
-      laborName: string;
-      /** @description 사무소 이름 */
-      name: string;
-      /** @description 사무소 우편번호 */
-      zipCode: string;
-      /** @description 사무소 주소 */
-      address: string;
-      /** @description 사무소 장소(상세주소) */
-      detailAddress: string;
-      /** @description 사무소 전화번호1 */
-      tel1: string;
-      /** @description 사무소 전화번호2 */
-      tel2: string | null;
-      /** @description 사무소 전화번호3 */
-      tel3: string | null;
-      /** @description 사무소 팩스 번호 */
-      faxNumber: string;
-      /** @description 사무소 홈페이지 url */
-      homepage: string | null;
+    "KcplaaMemberSearchable$0KhelIcqssJxKfi0-pQ-Mw": {
       /**
-       * Format: date-time
-       * @description 경조사 등록일
+       * @description 노무사 회원 인명록 검색 허용 여부
+       * @default true
        */
-      createdAt: string | null;
+      searchable: boolean;
+      /** @description 노무사 회원 인명록 검색시 제외될 필드 리스트 */
+      omittedFields: ("profileImage" | "email" | "phone" | "workplaces")[];
     };
-    "KcplaaMember$6p-tosJjXsEcsKBiN6tdeQ": {
+    KcplaaMember$1YYxKtMKdQIrcxeqS9gH3w: {
       id: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      office: components["schemas"]["KcplaaOffice"];
+      /** @description 로그인에 사용되는 아이디 */
+      accountId: string;
       /**
-       * @description 회원 등급
+       * @description 계정 타입. 2: 노무사, 9: 노무사회 홈페이지 관리자 계정
        * @enum {string}
        */
-      memberType:
+      type:
         | "Blocked"
         | "Normal"
         | "Company"
         | "LaborAttorney"
+        | "Suspended"
         | "Admin"
         | "Master";
+      /**
+       * @description 회원등급. 2: 일반 회원, 9: 관리자, 나머지:몰름
+       * @enum {string}
+       */
+      grade:
+        | "NonMember"
+        | "Unknown1"
+        | "Normal"
+        | "Unknown4"
+        | "Unknown6"
+        | "Suspended"
+        | "Admin";
       /** @description 이름 */
       name: string;
+      /** @description 유선전화번호 */
+      landline: string | null;
       /** @description 휴대전화 번호 */
-      phone: string;
+      phone: string | null;
       /** @description 이메일 */
-      email: string;
-      /** @description 우편주소 */
-      zipCode: string;
-      /** @description 주소 */
-      address: string;
-      /** @description 상세주소 */
-      detailAddress: string;
+      email: string | null;
+      /** @description 생년월일 */
+      birth: string | null;
       /** @description 프로필 이미지 */
-      profileImg: string;
-      /** @description 홈페이지 멤버의 노무사 정보 */
-      labor: components["schemas"]["KcplaaMemberLabor"] | null;
-      /** @description 홈페이지 멤버의 현재 사무소 정보 */
-      currentOffice:
-        | components["schemas"]["KcplaaOffice_KcplaaMember$0KhelIcqssJxKfi0-pQ-Mw"]
+      profileImg: string | null;
+      /** @description 노무사 회원 기수 */
+      licenseCb: number | null;
+      /** @description 노무사 회원 자격증 번호 */
+      licenseNo: number | null;
+      /** @description 회비 미납 월 수 */
+      outstandingMonth: number;
+      /** @description 입회비 납부 여부 */
+      payEntranceFee: boolean;
+      /** @description 노무사 회원 인명록 검색 허용 여부 설정 */
+      kcplaaMemberSearchable:
+        | components["schemas"]["KcplaaMemberSearchable$0KhelIcqssJxKfi0-pQ-Mw"]
         | null;
+      /** @description 아이레이버 로그인 링크 */
+      iLaborLink: string;
+      /** @description 이러닝 로그인 링크 */
+      eLearningLink: string;
     };
-    "User$f0-MHve7FXRvOlOxxC6eow": {
+    "User$zN-Z7hWW1IRv4XqN0q22_g": {
       id: number;
       /** Format: date-time */
       createdAt: string;
@@ -1295,20 +1424,15 @@ export interface components {
       belongingGroupId: number | null;
       /** @description 노무사회 홈페이지 멤버 */
       kcplaaMember:
-        | components["schemas"]["KcplaaMember$6p-tosJjXsEcsKBiN6tdeQ"]
+        | components["schemas"]["KcplaaMember$1YYxKtMKdQIrcxeqS9gH3w"]
         | null;
     };
-    "GroupMember$EWvU9ln-hoYH4UPJ_1sW2Q": {
+    "GroupMember$hpumE_UrjujD3-1eeNgw9Q": {
       id: number;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -1321,99 +1445,7 @@ export interface components {
       /** @description 그룹에서 유저가 가지는 직위 id */
       positionId: number | null;
       /** @description 그룹에 속하는 유저 */
-      user: components["schemas"]["User$f0-MHve7FXRvOlOxxC6eow"] | null;
-    };
-    "KcplaaMember$NSy-VJnYStQvYjo8W9Fv8A": {
-      id: number;
-      /**
-       * @description 회원 등급
-       * @enum {string}
-       */
-      memberType:
-        | "Blocked"
-        | "Normal"
-        | "Company"
-        | "LaborAttorney"
-        | "Admin"
-        | "Master";
-      /** @description 이름 */
-      name: string;
-      /** @description 휴대전화 번호 */
-      phone: string;
-      /** @description 이메일 */
-      email: string;
-      /** @description 우편주소 */
-      zipCode: string;
-      /** @description 주소 */
-      address: string;
-      /** @description 상세주소 */
-      detailAddress: string;
-      /** @description 프로필 이미지 */
-      profileImg: string;
-      /** @description 홈페이지 멤버의 노무사 정보 */
-      labor: components["schemas"]["KcplaaMemberLabor"] | null;
-    };
-    "User$tmXevqY4-H-GlfT-wTnWJA": {
-      id: number;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      /** @description uuid */
-      uuid: string;
-      /**
-       * @description 한번이라도 로그인한 이력이 있는지 여부
-       * @default false
-       */
-      loggedInBefore: boolean;
-      /** @description 유저 이름 */
-      name: string;
-      /**
-       * @description 이메일
-       *
-       *
-       * - 애초에 로그인은 account.id로 함. account.id는 unique함
-       * - 이메일과 account.id는 관련 없음
-       * - *노무사회 홈페이지 멤버들은 이메일이 중복됨*
-       */
-      email: string | null;
-      /** @description 전화번호 */
-      phone: string | null;
-      /** @description 계정이 종속된 그룹 id */
-      belongingGroupId: number | null;
-      /** @description 노무사회 홈페이지 멤버 */
-      kcplaaMember:
-        | components["schemas"]["KcplaaMember$NSy-VJnYStQvYjo8W9Fv8A"]
-        | null;
-    };
-    "GroupMember$jlt1tYh5e0Rsg2-DD0hBZg": {
-      id: number;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
-      /** @description 유저가 속한 그룹 id */
-      groupId: number;
-      /**
-       * @description 멤버 타입
-       * @enum {string}
-       */
-      type: "organization" | "association";
-      /** @description 그룹에 속하는 유저 id */
-      userId: number;
-      /** @description 그룹에서 유저가 가지는 직위 id */
-      positionId: number | null;
-      /** @description 그룹에 속하는 유저 */
-      user: components["schemas"]["User$tmXevqY4-H-GlfT-wTnWJA"] | null;
-    };
-    UpdateGroupMemberSearchableDto: {
-      /** @description 멤버 검색 가능 여부 */
-      searchable: boolean;
+      user: components["schemas"]["User$zN-Z7hWW1IRv4XqN0q22_g"] | null;
     };
     CreateGroupBannerDto: {
       /** @description 배너 이미지 경로 */
@@ -1488,6 +1520,11 @@ export interface components {
       endAt?: string;
     };
     "Device$0KhelIcqssJxKfi0-pQ-Mw": {
+      /**
+       * @description 테스트 기기인지 여부
+       * @default false
+       */
+      testDevice: boolean;
       /** @description 클라이언트 기기 uuid */
       uuid: string;
       /** @description 클라이언트 기기 별칭 */
@@ -1658,11 +1695,6 @@ export interface components {
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -1902,11 +1934,6 @@ export interface components {
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -2015,11 +2042,6 @@ export interface components {
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -2069,104 +2091,41 @@ export interface components {
     BulkCreateAssociationGroupMemberDto: {
       groupMembers: components["schemas"]["CreateGroupAssociationMemberDto"][];
     };
-    "User$0KhelIcqssJxKfi0-pQ-Mw": {
-      id: number;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      /** @description uuid */
-      uuid: string;
-      /**
-       * @description 한번이라도 로그인한 이력이 있는지 여부
-       * @default false
-       */
-      loggedInBefore: boolean;
-      /** @description 유저 이름 */
+    UpdateKcplaaMemberSearchableDto: {
+      /** @description 멤버 검색 가능 여부 */
+      searchable?: boolean;
+      omittedFields?: ("profileImage" | "email" | "phone" | "workplaces")[];
+    };
+    KcplaaCsMemberView$mZFLkyvTelC5g8XnyQrpOw: {
+      /** @description 등록번호 */
+      licenseNo: number;
+      /** @description 이름 */
       name: string;
-      /**
-       * @description 이메일
-       *
-       *
-       * - 애초에 로그인은 account.id로 함. account.id는 unique함
-       * - 이메일과 account.id는 관련 없음
-       * - *노무사회 홈페이지 멤버들은 이메일이 중복됨*
-       */
-      email: string | null;
-      /** @description 전화번호 */
+      /** @description 회원 구분. 일반회원, 개업회원 등이 있음 */
+      grade: string;
+      /** @description 소속 지회 */
+      subAssociation: string | null;
+      /** @description 기수. null이면 경력 노무사 */
+      licenseCb: number | null;
+      /** @description 휴대전화 번호 */
       phone: string | null;
-      /** @description 계정이 종속된 그룹 id */
-      belongingGroupId: number | null;
-    };
-    "KcplaaMember$aOvxvMzyt-p-Eq3bTAQCjg": {
-      id: number;
-      /**
-       * @description 회원 등급
-       * @enum {string}
-       */
-      memberType:
-        | "Blocked"
-        | "Normal"
-        | "Company"
-        | "LaborAttorney"
-        | "Admin"
-        | "Master";
-      /** @description 이름 */
-      name: string;
-      /** @description 휴대전화 번호 */
-      phone: string;
       /** @description 이메일 */
-      email: string;
-      /** @description 우편주소 */
-      zipCode: string;
-      /** @description 주소 */
-      address: string;
-      /** @description 상세주소 */
-      detailAddress: string;
-      /** @description 프로필 이미지 */
-      profileImg: string;
-      /** @description 홈페이지 멤버의 노무사 정보 */
-      labor: components["schemas"]["KcplaaMemberLabor"] | null;
-      /** @description 맘모스를 사용중인지 여부 */
-      useMommoss: boolean;
-      /** @description 홈페이지 멤버의 현재 사무소 정보 */
-      currentOffice:
-        | components["schemas"]["KcplaaOffice_KcplaaMember$0KhelIcqssJxKfi0-pQ-Mw"]
-        | null;
-      user: components["schemas"]["User$0KhelIcqssJxKfi0-pQ-Mw"] | null;
+      email: string | null;
+      /** @description 사무소 이름 */
+      officeName: string | null;
+      /** @description 사무소 주소. 상세주소 포함 */
+      officeAddress: string | null;
+      /** @description 사무소 전화번호1 */
+      officeTel1: string | null;
+      /** @description 사무소 우편번호 */
+      officeZipCode: string | null;
     };
-    KcplaaMember$nL4YL2hn2U5nSdDLPk6RAQ: {
-      id: number;
-      /**
-       * @description 회원 등급
-       * @enum {string}
-       */
-      memberType:
-        | "Blocked"
-        | "Normal"
-        | "Company"
-        | "LaborAttorney"
-        | "Admin"
-        | "Master";
-      /** @description 이름 */
-      name: string;
-      /** @description 휴대전화 번호 */
-      phone: string;
-      /** @description 이메일 */
-      email: string;
-      /** @description 우편주소 */
-      zipCode: string;
-      /** @description 주소 */
-      address: string;
-      /** @description 상세주소 */
-      detailAddress: string;
-      /** @description 프로필 이미지 */
-      profileImg: string;
-      /** @description 홈페이지 멤버의 노무사 정보 */
-      labor: components["schemas"]["KcplaaMemberLabor"] | null;
-      user: components["schemas"]["User$0KhelIcqssJxKfi0-pQ-Mw"] | null;
+    List$KcplaaCsMemberView$mZFLkyvTelC5g8XnyQrpOw: {
+      rows: components["schemas"]["KcplaaCsMemberView$mZFLkyvTelC5g8XnyQrpOw"][];
+      /** @description 조건에 맞는 값의 전체 개수, limit나 page에 영향을 받지 않는 값 */
+      count: number;
     };
-    "Event$0KhelIcqssJxKfi0-pQ-Mw": {
+    Event$QIxtfcnO7Z8cBRuL7ctzsQ: {
       id: number;
       /** Format: date-time */
       createdAt: string;
@@ -2231,8 +2190,10 @@ export interface components {
       requestorPhone: string | null;
       /** @description 노무사회 경조사 id, 승인된 경조사는 이 값이 있음 */
       kcplaaEventId: number | null;
+      /** @description 경조사의 첨부파일 */
+      attachedFiles: components["schemas"]["File$0KhelIcqssJxKfi0-pQ-Mw"][];
     };
-    KcplaaEvent$C2Ykh406TtFkckl8asybZw: {
+    KcplaaEvent$Lhkz8RKRbSF25DN1lVppBg: {
       /** @description 경조사 id */
       id: number;
       /**
@@ -2241,7 +2202,7 @@ export interface components {
        */
       createdAt: string;
       /** @description mommoss db에 저장된 경조사 데이터 */
-      event: components["schemas"]["Event$0KhelIcqssJxKfi0-pQ-Mw"] | null;
+      event: components["schemas"]["Event$QIxtfcnO7Z8cBRuL7ctzsQ"] | null;
       /** @description 경조사 제목 */
       title: string | null;
       /** @description 경조사 날짜, yyyy-mm-dd 형식 */
@@ -2257,11 +2218,6 @@ export interface components {
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -2320,35 +2276,60 @@ export interface components {
     };
     KcplaaMember$n1qL2LgK1wWloKVbny6I_Q: {
       id: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      office: components["schemas"]["KcplaaOffice"];
+      /** @description 로그인에 사용되는 아이디 */
+      accountId: string;
       /**
-       * @description 회원 등급
+       * @description 계정 타입. 2: 노무사, 9: 노무사회 홈페이지 관리자 계정
        * @enum {string}
        */
-      memberType:
+      type:
         | "Blocked"
         | "Normal"
         | "Company"
         | "LaborAttorney"
+        | "Suspended"
         | "Admin"
         | "Master";
+      /**
+       * @description 회원등급. 2: 일반 회원, 9: 관리자, 나머지:몰름
+       * @enum {string}
+       */
+      grade:
+        | "NonMember"
+        | "Unknown1"
+        | "Normal"
+        | "Unknown4"
+        | "Unknown6"
+        | "Suspended"
+        | "Admin";
       /** @description 이름 */
       name: string;
+      /** @description 유선전화번호 */
+      landline: string | null;
       /** @description 휴대전화 번호 */
-      phone: string;
+      phone: string | null;
       /** @description 이메일 */
-      email: string;
-      /** @description 우편주소 */
-      zipCode: string;
-      /** @description 주소 */
-      address: string;
-      /** @description 상세주소 */
-      detailAddress: string;
+      email: string | null;
+      /** @description 생년월일 */
+      birth: string | null;
       /** @description 프로필 이미지 */
-      profileImg: string;
-      /** @description 홈페이지 멤버의 노무사 정보 */
-      labor: components["schemas"]["KcplaaMemberLabor"] | null;
+      profileImg: string | null;
+      /** @description 노무사 회원 기수 */
+      licenseCb: number | null;
+      /** @description 노무사 회원 자격증 번호 */
+      licenseNo: number | null;
+      /** @description 회비 미납 월 수 */
+      outstandingMonth: number;
+      /** @description 입회비 납부 여부 */
+      payEntranceFee: boolean;
       /** @description 맘모스를 사용중인지 여부 */
       useMommoss: boolean;
+      /** @description 맘모스 유저 record */
       user: components["schemas"]["User$6PObkChBrJ5v9950AfAoDw"] | null;
     };
     List$KcplaaMember$n1qL2LgK1wWloKVbny6I_Q: {
@@ -2366,40 +2347,6 @@ export interface components {
       groupId: number;
       /** @description 공지사항 카테고리 이름 */
       name: string;
-    };
-    "File$0KhelIcqssJxKfi0-pQ-Mw": {
-      ext: string | null;
-      convertibleExt: string | null;
-      /** @description 파일 이름 */
-      name: string;
-      /** @description 파일 mime type */
-      mimeType: string;
-      /** @description 파일 크기 */
-      size: number;
-      /** @description 변환된 파일 확장자 */
-      convertedExt: string | null;
-      /** @description 변환된 파일 mimeType */
-      convertedMimeType: string | null;
-      /** @description 변환된 파일 크기 */
-      convertedSize: number | null;
-      /** @description 파일 uuid, 파일은 uuid를 이름으로 저장됨 */
-      uuid: string;
-      /**
-       * @description 파일 접근 권한 레벨
-       * - public: 공개 파일, 모두 접근 가능(로그인 안해도)
-       * - user: 유저 개인 파일, 해당 파일을 업로드한 유저만 접근 가능
-       * - group: 그룹 파일, 해당 파일이 업로드된 그룹의 멤버들만 접근 가능
-       * @enum {string}
-       */
-      accessLevel: "group" | "user" | "public";
-      /** @description 파일을 업로드한 유저 id */
-      uploaderId: number | null;
-      /** @description 파일이 속한 그룹 id */
-      groupId: number | null;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
     };
     "Notice$pkGxn-Ue16GEkSQIRshWGA": {
       id: number;
@@ -2969,17 +2916,41 @@ export interface components {
        */
       temporary?: boolean;
     };
+    "User$0KhelIcqssJxKfi0-pQ-Mw": {
+      id: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @description uuid */
+      uuid: string;
+      /**
+       * @description 한번이라도 로그인한 이력이 있는지 여부
+       * @default false
+       */
+      loggedInBefore: boolean;
+      /** @description 유저 이름 */
+      name: string;
+      /**
+       * @description 이메일
+       *
+       *
+       * - 애초에 로그인은 account.id로 함. account.id는 unique함
+       * - 이메일과 account.id는 관련 없음
+       * - *노무사회 홈페이지 멤버들은 이메일이 중복됨*
+       */
+      email: string | null;
+      /** @description 전화번호 */
+      phone: string | null;
+      /** @description 계정이 종속된 그룹 id */
+      belongingGroupId: number | null;
+    };
     GroupMember$iXVp0y1xpAiIQOUO9Jmukw: {
       id: number;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -2997,6 +2968,11 @@ export interface components {
       notificationReadStatus: boolean | null;
     };
     "Device$NSy-VJnYStQvYjo8W9Fv8A": {
+      /**
+       * @description 테스트 기기인지 여부
+       * @default false
+       */
+      testDevice: boolean;
       /** @description 클라이언트 기기 uuid */
       uuid: string;
       /** @description 클라이언트 기기 별칭 */
@@ -3511,17 +3487,41 @@ export interface components {
        */
       editable: boolean;
     };
+    "User$NSy-VJnYStQvYjo8W9Fv8A": {
+      id: number;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      /** @description uuid */
+      uuid: string;
+      /**
+       * @description 한번이라도 로그인한 이력이 있는지 여부
+       * @default false
+       */
+      loggedInBefore: boolean;
+      /** @description 유저 이름 */
+      name: string;
+      /**
+       * @description 이메일
+       *
+       *
+       * - 애초에 로그인은 account.id로 함. account.id는 unique함
+       * - 이메일과 account.id는 관련 없음
+       * - *노무사회 홈페이지 멤버들은 이메일이 중복됨*
+       */
+      email: string | null;
+      /** @description 전화번호 */
+      phone: string | null;
+      /** @description 계정이 종속된 그룹 id */
+      belongingGroupId: number | null;
+    };
     "GroupMember$dQ1lHHvrCDC-vcpozpaX_w": {
       id: number;
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
-      /**
-       * @description 그룹에서 멤버 검색시 내 정보 노출 허용 여부
-       * @default true
-       */
-      searchable: boolean;
       /** @description 유저가 속한 그룹 id */
       groupId: number;
       /**
@@ -3934,8 +3934,9 @@ export interface components {
       pushToken?: string | null;
       /** @description 디바이스 정보 */
       deviceInfo?: { [key: string]: unknown } | null;
+      testDevice?: boolean;
     };
-    User$kW8DNoBYvjysDio7PQqZhA: {
+    User$jNKBlzC61snIVfR8ioXwhA: {
       id: number;
       /** Format: date-time */
       createdAt: string;
@@ -3963,15 +3964,36 @@ export interface components {
       phone: string | null;
       /** @description 계정이 종속된 그룹 id */
       belongingGroupId: number | null;
+      /** @description 유저의 계정 id */
+      accountId: string | null;
+      /**
+       * Format: date-time
+       * @description 유저가 마지막으로 로그인한 시간
+       */
+      lastActivatedAt: string | null;
+      /** @description 노무사회 홈페이지 멤버 */
+      kcplaaMember:
+        | components["schemas"]["KcplaaMember$1YYxKtMKdQIrcxeqS9gH3w"]
+        | null;
+      licenseFiles: components["schemas"]["File$0KhelIcqssJxKfi0-pQ-Mw"][];
       /** @description 유저 계정 */
       account: components["schemas"]["Account$0KhelIcqssJxKfi0-pQ-Mw"] | null;
-      licenseFiles: components["schemas"]["File$0KhelIcqssJxKfi0-pQ-Mw"][];
     };
     UpdateUserMeDto: {
       /** @description 자격증 파일 id */
       licenseFileIds: string[];
     };
-    User$oBZswlgzhdvTfkGHIkB3DA: {
+    KcplaaMember$FW238KUxWqVB1V5KjOyI2Q: {
+      /** @description 이름 */
+      name: string;
+      /** @description 프로필 이미지 */
+      profileImg: string | null;
+      /** @description 노무사 회원 기수 */
+      licenseCb: number | null;
+      /** @description 노무사 회원 자격증 번호 */
+      licenseNo: number | null;
+    };
+    User$tFI6qC0I7aqSExPPskaLJA: {
       /**
        * @description 한번이라도 로그인한 이력이 있는지 여부
        * @default false
@@ -3979,6 +4001,10 @@ export interface components {
       loggedInBefore: boolean;
       /** @description 유저 이름 */
       name: string;
+      /** @description 노무사회 홈페이지 멤버 */
+      kcplaaMember:
+        | components["schemas"]["KcplaaMember$FW238KUxWqVB1V5KjOyI2Q"]
+        | null;
     };
     VideoPost$KYn23EnQvRAfAL0lTTpJGw: {
       id: number;
@@ -4261,7 +4287,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["List$Event$mZFLkyvTelC5g8XnyQrpOw"];
+          "application/json": components["schemas"]["List$Event$2F9pRg9eqpH6BKi3qrJTtg"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -4305,7 +4331,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["Event$mZFLkyvTelC5g8XnyQrpOw"];
+          "application/json": components["schemas"]["Event$2F9pRg9eqpH6BKi3qrJTtg"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -4338,7 +4364,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["List$Event$4_H5TmjlkNHtTJ3G3Hrwuw"];
+          "application/json": components["schemas"]["List$Event$XVVAi-yfwQ5XUBu7jTmzrQ"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -4361,7 +4387,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["Event$4_H5TmjlkNHtTJ3G3Hrwuw"];
+          "application/json": components["schemas"]["Event$XVVAi-yfwQ5XUBu7jTmzrQ"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -4656,8 +4682,8 @@ export interface operations {
     };
   };
   /**
-   * 내 정보 검색 허용으로 설정된 회원 리스트를 가져옵니다.
-   * 맘모스에 로그인한 적 없는 회원은 검색이 불가능해 deprecated 되었습니다.
+   * 회원 리스트를 가져옵니다.
+   * 맘모스에 로그인한 적 없는 노무사 회원은 검색이 불가능합니다.
    */
   GroupMemberController_getGroupMemberList: {
     parameters: {
@@ -4701,7 +4727,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["GroupMember$EWvU9ln-hoYH4UPJ_1sW2Q"];
+          "application/json": components["schemas"]["GroupMember$hpumE_UrjujD3-1eeNgw9Q"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -4710,7 +4736,7 @@ export interface operations {
       404: unknown;
     };
   };
-  /** 내 정보 검색 허용으로 설정된 회원 상세 정보를 가져옵니다. 맘모스에 로그인한 적 없는 회원은 검색이 불가능합니다. 맘모스에 로그인한 적 없는 회원을 찾고 싶다면 /api/v1/kcplaa/members/:kcplaaMemberId 를 사용하세요. */
+  /** 회원 상세 정보를 가져옵니다. 맘모스에 로그인한 적 없는 회원은 검색이 불가능합니다. 맘모스에 로그인한 적 없는 노무사 회원을 찾고 싶다면 /api/v1/kcplaa/members/:kcplaaMemberId 를 사용하세요. */
   GroupMemberController_getGroupMember: {
     parameters: {
       header: {
@@ -4724,39 +4750,13 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["GroupMember$jlt1tYh5e0Rsg2-DD0hBZg"];
+          "application/json": components["schemas"]["GroupMember$--k8TVEdxcxP8YRvCJm06g"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
       401: unknown;
       /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
       404: unknown;
-    };
-  };
-  /** 내 정보 검색 허용 여부를 설정합니다. */
-  GroupMemberController_setSearchable: {
-    parameters: {
-      header: {
-        /** 그룹 ID 헤더 */
-        "x-group-id": string;
-      };
-    };
-    responses: {
-      200: {
-        content: {
-          "application/json": number;
-        };
-      };
-      204: never;
-      /** 토큰이 없거나 잘못되었을 때 */
-      401: unknown;
-      /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
-      404: unknown;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateGroupMemberSearchableDto"];
-      };
     };
   };
   /** 그룹 배너 리스트를 가져옵니다. */
@@ -4771,6 +4771,7 @@ export interface operations {
         sort?: "createdAt" | "updatedAt" | "startAt" | "endAt";
         /** 정렬 방향 */
         dir?: "asc" | "desc";
+        /** 배너 노출 여부 */
         visible?: boolean;
         /** 페이지 번호 */
         page: number;
@@ -4834,35 +4835,6 @@ export interface operations {
       404: unknown;
     };
   };
-  /** groupBannerId에 해당하는 그룹 배너를 수정합니다. */
-  AdminGroupBannerController_updateGroupBanner: {
-    parameters: {
-      header: {
-        /** 그룹 ID 헤더 */
-        "x-group-id": string;
-      };
-      path: {
-        groupBannerId: number;
-      };
-    };
-    responses: {
-      201: {
-        content: {
-          "application/json": number;
-        };
-      };
-      204: never;
-      /** 토큰이 없거나 잘못되었을 때 */
-      401: unknown;
-      /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
-      404: unknown;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateGroupBannerDto"];
-      };
-    };
-  };
   /** groupBannerId에 해당하는 그룹 배너를 삭제합니다. */
   AdminGroupBannerController_deleteGroupBanner: {
     parameters: {
@@ -4881,6 +4853,35 @@ export interface operations {
       401: unknown;
       /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
       404: unknown;
+    };
+  };
+  /** groupBannerId에 해당하는 그룹 배너를 수정합니다. */
+  AdminGroupBannerController_updateGroupBanner: {
+    parameters: {
+      header: {
+        /** 그룹 ID 헤더 */
+        "x-group-id": string;
+      };
+      path: {
+        groupBannerId: number;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": number;
+        };
+      };
+      204: never;
+      /** 토큰이 없거나 잘못되었을 때 */
+      401: unknown;
+      /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
+      404: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateGroupBannerDto"];
+      };
     };
   };
   /** 모든 그룹 멤버 리스트를 가져옵니다. */
@@ -5847,6 +5848,49 @@ export interface operations {
       500: unknown;
     };
   };
+  /** 노무사 회원 인명록에서 내 정보 검색 허용 여부를 설정합니다. 노무사 회원만 이용 가능합니다. */
+  KcplaaMemberController_setSearchable: {
+    parameters: {
+      header: {
+        /** 그룹 ID 헤더 */
+        "x-group-id": string;
+      };
+    };
+    responses: {
+      200: {
+        content: {
+          "application/json": number;
+        };
+      };
+      204: never;
+      /** 토큰이 없거나 잘못되었을 때 */
+      401: unknown;
+      /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
+      404: unknown;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateKcplaaMemberSearchableDto"];
+      };
+    };
+  };
+  /** 본인의 노무사 회원 정보를 동기화합니다. 기본적으로는 매일 새벽 2시마다 동기화됩니다. 노무사 회원만 이용 가능합니다. */
+  KcplaaMemberController_syncKcplaaMemberData: {
+    parameters: {
+      header: {
+        /** 그룹 ID 헤더 */
+        "x-group-id": string;
+      };
+    };
+    responses: {
+      200: unknown;
+      204: never;
+      /** 토큰이 없거나 잘못되었을 때 */
+      401: unknown;
+      /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
+      404: unknown;
+    };
+  };
   /**
    * 내 정보 검색 허용으로 설정된 노무사 리스트를 가져옵니다.
    * 맘모스를 사용하지 않은 노무사는 검색 허용으로 취급됩니다.
@@ -5859,16 +5903,31 @@ export interface operations {
         "x-group-id": string;
       };
       query: {
-        /** 검색어 */
-        q: string;
+        /** 정렬 기준 */
+        sort?: "name";
+        /** 정렬 방향 */
+        dir?: "asc" | "desc";
+        /** 검색할 컬럼 */
+        property:
+          | "name"
+          | "phone"
+          | "licenseCb"
+          | "officeName"
+          | "officeAddress";
         /** true면 검색 허용으로 설정된 멤버만 가져옴 */
         searchable?: boolean;
+        /** 검색어 */
+        q?: string;
+        /** 페이지 번호 */
+        page: number;
+        /** 페이지당 개수 */
+        limit: number;
       };
     };
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["KcplaaMember$aOvxvMzyt-p-Eq3bTAQCjg"][];
+          "application/json": components["schemas"]["List$KcplaaCsMemberView$mZFLkyvTelC5g8XnyQrpOw"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -5877,7 +5936,7 @@ export interface operations {
       404: unknown;
     };
   };
-  /** 노무사 회원 id(kcplaaMemberId)에 해당하는 노무사의 상세 정보를 조회합니다. */
+  /** 노무사 자격증번호(licenseNo)에 해당하는 노무사의 상세 정보를 조회합니다. */
   KcplaaMemberController_getKcplaaMemberDetail: {
     parameters: {
       header: {
@@ -5885,13 +5944,13 @@ export interface operations {
         "x-group-id": string;
       };
       path: {
-        kcplaaMemberId: number;
+        licenseNo: number;
       };
     };
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["KcplaaMember$nL4YL2hn2U5nSdDLPk6RAQ"];
+          "application/json": components["schemas"]["KcplaaCsMemberView$mZFLkyvTelC5g8XnyQrpOw"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -5901,7 +5960,7 @@ export interface operations {
     };
   };
   /** 경조사 리스트를 조회합니다. */
-  KcplaaMemberController_getEventList: {
+  KcplaaEventController_getEventList: {
     parameters: {
       header: {
         /** 그룹 ID 헤더 */
@@ -5919,7 +5978,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["KcplaaEvent$C2Ykh406TtFkckl8asybZw"][];
+          "application/json": components["schemas"]["KcplaaEvent$Lhkz8RKRbSF25DN1lVppBg"][];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -5929,7 +5988,7 @@ export interface operations {
     };
   };
   /** 노무사회에 등록된 경조사를 조회합니다. */
-  KcplaaMemberController_getEvent: {
+  KcplaaEventController_getEvent: {
     parameters: {
       header: {
         /** 그룹 ID 헤더 */
@@ -5942,7 +6001,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["KcplaaEvent$C2Ykh406TtFkckl8asybZw"][];
+          "application/json": components["schemas"]["KcplaaEvent$Lhkz8RKRbSF25DN1lVppBg"][];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -5981,6 +6040,43 @@ export interface operations {
           "application/json": components["schemas"]["List$KcplaaMember$n1qL2LgK1wWloKVbny6I_Q"];
         };
       };
+      /** 토큰이 없거나 잘못되었을 때 */
+      401: unknown;
+      /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
+      404: unknown;
+    };
+  };
+  /** 노무사 전체 회원 정보를 동기화합니다. 기본적으로는 매일 새벽 2시마다 동기화됩니다. */
+  AdminKcplaaMemberController_refreshKcplaaData: {
+    parameters: {
+      header: {
+        /** 그룹 ID 헤더 */
+        "x-group-id": string;
+      };
+    };
+    responses: {
+      200: unknown;
+      204: never;
+      /** 토큰이 없거나 잘못되었을 때 */
+      401: unknown;
+      /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
+      404: unknown;
+    };
+  };
+  /** kcplaaMemberId에 해당하는 노무사 회원 정보를 동기화합니다. 기본적으로는 매일 새벽 2시마다 동기화됩니다. */
+  AdminKcplaaMemberController_refreshKcplaaMemberData: {
+    parameters: {
+      header: {
+        /** 그룹 ID 헤더 */
+        "x-group-id": string;
+      };
+      path: {
+        kcplaaMemberId: number;
+      };
+    };
+    responses: {
+      200: unknown;
+      204: never;
       /** 토큰이 없거나 잘못되었을 때 */
       401: unknown;
       /** 토큰은 정상적이나 리소스에 접근할 권한이 부족하면 forbidden 대신 not found가 반환됨 */
@@ -7108,7 +7204,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["User$kW8DNoBYvjysDio7PQqZhA"];
+          "application/json": components["schemas"]["User$jNKBlzC61snIVfR8ioXwhA"];
         };
       };
       /** 토큰이 없거나 잘못되었을 때 */
@@ -7145,7 +7241,7 @@ export interface operations {
     responses: {
       200: {
         content: {
-          "application/json": components["schemas"]["User$oBZswlgzhdvTfkGHIkB3DA"];
+          "application/json": components["schemas"]["User$tFI6qC0I7aqSExPPskaLJA"];
         };
       };
     };

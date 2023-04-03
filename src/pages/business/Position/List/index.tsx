@@ -8,6 +8,8 @@ import useGetPositions from '@hooks/queries/group/useGetPositions';
 
 import { createPosition, deletePosition, updatePosition } from '@api/group';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
+
 import { ReactComponent as Arrow } from '@assets/icons/arrow.svg';
 import { ReactComponent as Trash } from '@assets/icons/trash.svg';
 
@@ -40,7 +42,12 @@ function List() {
       return;
     }
 
-    await createPosition({ data: { name: newPositionName } });
+    const response = await createPosition({ data: { name: newPositionName } });
+
+    if (getIsResponseFalse(response)) {
+      message.error('직위 추가에 실패했습니다. 다시 시도해주세요.');
+      return false;
+    }
 
     message.success('직위가 추가되었습니다.');
     setNewPositionName('');
@@ -98,10 +105,15 @@ function List() {
                 return false;
               }
 
-              await updatePosition({
+              const response = await updatePosition({
                 path: { positionId: id },
                 data: { name: editPositionName[id] },
               });
+
+              if (getIsResponseFalse(response)) {
+                message.error('직위 이름 변경에 실패했습니다. 다시 시도해주세요.');
+                return false;
+              }
 
               message.success('직위 이름이 변경되었습니다.');
               refetch();
@@ -114,7 +126,12 @@ function List() {
                 cancelText: '취소',
                 onOk: async () => {
                   console.log('OK');
-                  await deletePosition({ path: { positionId: id } });
+                  const response = await deletePosition({ path: { positionId: id } });
+
+                  if (getIsResponseFalse(response)) {
+                    message.error('직위 삭제에 실패했습니다. 다시 시도해주세요.');
+                    return false;
+                  }
 
                   refetch();
                   message.success('직위가 삭제되었습니다.');

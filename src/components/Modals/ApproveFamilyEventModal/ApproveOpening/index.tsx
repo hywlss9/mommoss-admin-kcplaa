@@ -1,10 +1,15 @@
 import { Form, Input, Radio } from 'antd';
 import dayjs from 'dayjs';
 
+import useIsDiligence from '@hooks/useIsDiligence';
+
+import * as C from '@components/Common';
 import type { ApproveFamilyEventModalProps } from '@components/Modals/ApproveFamilyEventModal/type';
 
 function ApproveOpening({ event, radioOptions }: ApproveFamilyEventModalProps) {
   const { title, type, paymentMethod, date, address, groupMembers } = event;
+
+  const isDiligence = useIsDiligence(groupMembers[0]);
 
   const applicant = groupMembers.find(({ requester }) => requester);
   const name = groupMembers.map(({ user, licenseCb, licenseNo }) => {
@@ -13,7 +18,7 @@ function ApproveOpening({ event, radioOptions }: ApproveFamilyEventModalProps) {
 
   return (
     <>
-      <Form.Item label={'신청자'}>
+      <Form.Item label={<>{isDiligence && <C.CertifiedBadge />}신청자</>}>
         <Input value={applicant?.user?.name} disabled={true} />
       </Form.Item>
       <Form.Item label={'경조사 구분'}>

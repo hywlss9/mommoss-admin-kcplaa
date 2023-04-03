@@ -9,14 +9,16 @@ import { openModal } from '@reduce/modals';
 
 import useGetFamilyEvents from '@hooks/queries/event/useGetFamilyEvents';
 
-import type { GetFamiyEventResponse } from '@api/event/getFamilyEvent';
+import type { GetFamilyEventResponse } from '@api/event/getFamilyEvent';
 import type { GetFamilyEventsQuery } from '@api/event/getFamilyEvents';
 
 import { off, on } from '@utils/globalEvents';
 
+import * as C from '@components/Common';
 import Sort from '@components/Sort';
 import Text from '@components/Text';
 
+import * as S from './styled';
 import type * as T from './type';
 
 const PAGE_SIZE: number = 8;
@@ -34,14 +36,6 @@ function FamilyEventTable() {
     refetch,
   } = useGetFamilyEvents({ page, dir, limit: PAGE_SIZE });
 
-  useEffect(() => {
-    on('SUCCESS_UPDATE_FAMILY_EVENT', refetch);
-
-    return () => {
-      off('SUCCESS_UPDATE_FAMILY_EVENT', refetch);
-    };
-  }, []);
-
   const columns: ColumnsType<T.FamilyEventTableData> = useMemo(() => {
     return [
       {
@@ -49,7 +43,7 @@ function FamilyEventTable() {
         dataIndex: 'type',
         title: '구분',
         render: type => {
-          let eventType;
+          let eventType = '';
           switch (type) {
             case 'wedding':
               eventType = '결혼';
@@ -79,8 +73,19 @@ function FamilyEventTable() {
         key: 'name',
         dataIndex: 'name',
         title: '신청자',
-        render: (_, record) => {
-          return <>{record.groupMembers[0].user?.name}</>;
+        render: (_, { groupMembers }) => {
+          const outstandingMonth = groupMembers[0].user?.kcplaaMember?.outstandingMonth;
+          const payEntranceFee = groupMembers[0].user?.kcplaaMember?.payEntranceFee;
+          const isDiligence =
+            typeof outstandingMonth === 'number' && outstandingMonth < 6 && payEntranceFee;
+
+          return (
+            <S.ApplyMemberName
+              {...(isDiligence && { title: '✓ 아이콘은 성실 회원을 표시합니다.' })}>
+              {isDiligence && <C.CertifiedBadge />}
+              {groupMembers[0].user?.name}
+            </S.ApplyMemberName>
+          );
         },
       },
       {
@@ -125,7 +130,10 @@ function FamilyEventTable() {
         title: '승인처리',
         render: (_, record) => {
           return (
-            <Text underline cursor='pointer' onClick={() => openCreateFamilyEventModal(record)}>
+            <Text
+              underline={true}
+              cursor='pointer'
+              onClick={() => openCreateFamilyEventModal(record)}>
               상세보기
             </Text>
           );
@@ -138,8 +146,16 @@ function FamilyEventTable() {
     return FamilyEvents.map(v => ({ ...v, key: v.id }));
   }, [FamilyEvents]);
 
-  const openCreateFamilyEventModal = (event: GetFamiyEventResponse) =>
+  const openCreateFamilyEventModal = (event: GetFamilyEventResponse) =>
     dispatch(openModal({ name: 'approveFamilyEvent', props: { event } }));
+
+  useEffect(() => {
+    on('SUCCESS_UPDATE_FAMILY_EVENT', refetch);
+
+    return () => {
+      off('SUCCESS_UPDATE_FAMILY_EVENT', refetch);
+    };
+  }, []);
 
   return (
     <>
@@ -148,8 +164,8 @@ function FamilyEventTable() {
         dataSource={dataSource}
         loading={isLoading}
         pagination={{
-          position: ['bottomCenter'],
           total,
+          position: ['bottomCenter'],
           pageSize: PAGE_SIZE,
           showSizeChanger: false,
           onChange: setPage,

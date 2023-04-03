@@ -16,7 +16,11 @@ interface UpdateVideoProps {
 
 type UpdateVideoResponse = unknown;
 
-export async function updateVideo({ path, data, headers }: UpdateVideoProps) {
+export async function updateVideo({
+  path,
+  data,
+  headers,
+}: UpdateVideoProps): Promise<UpdateVideoResponse | false> {
   const response = await authenticateRequest<UpdateVideoResponse>({
     method: 'patch',
     url: `/api/v1/admin/video-posts/${path.videoPostId}`,

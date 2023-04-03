@@ -20,7 +20,7 @@ export async function updateFamilyEvent({
   path,
   data,
   headers,
-}: UpdateFamilyEventProps): Promise<UpdateFamilyEventResponse> {
+}: UpdateFamilyEventProps): Promise<UpdateFamilyEventResponse | false> {
   const response = await authenticateRequest<UpdateFamilyEventResponse>({
     method: 'patch',
     url: `/api/v1/admin/events/${path.eventId}/approve`,

@@ -21,7 +21,7 @@ export async function deleteOrganizationMember({
   path,
   data,
   headers,
-}: DeleteOrganizationMemberCategoryProps): Promise<DeleteOrganizationMemberResponse> {
+}: DeleteOrganizationMemberCategoryProps): Promise<DeleteOrganizationMemberResponse | false> {
   const response = await authenticateRequest<DeleteOrganizationMemberResponse>({
     method: 'delete',
     url: `/api/v1/admin/organizations/teams/${path.teamId}/members`,

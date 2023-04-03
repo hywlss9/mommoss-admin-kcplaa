@@ -6,6 +6,8 @@ import useGetPositions from '@hooks/queries/group/useGetPositions';
 
 import { updateMember } from '@api/group';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
+
 import Text from '@components/Text';
 
 import * as S from './styled';
@@ -37,7 +39,15 @@ function PositionSelect({ memberId, refresh }: T.PositionSelectProps) {
         loader={<></>}>
         {positions.map(({ id, name }) => {
           const updatePosition = async () => {
-            await updateMember({ path: { groupMemberId: memberId }, data: { positionId: id } });
+            const response = await updateMember({
+              path: { groupMemberId: memberId },
+              data: { positionId: id },
+            });
+
+            if (getIsResponseFalse(response)) {
+              message.error('직위 변경에 실패했습니다. 다시 시도해주세요.');
+              return false;
+            }
 
             message.success('직위가 변경되었습니다.');
             refresh();

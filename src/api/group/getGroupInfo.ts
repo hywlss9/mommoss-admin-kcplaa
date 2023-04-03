@@ -1,7 +1,6 @@
 import { authenticateRequest } from '@api/authenticateRequest';
 
-import type { Group } from '@type/group';
-import type { operations } from '@type/model';
+import type { components, operations } from '@type/model';
 
 type GetGroupInfoPath = operations['GroupController_getGroup']['parameters']['path'];
 
@@ -9,9 +8,11 @@ interface GetGroupInfoProps {
   path: GetGroupInfoPath;
 }
 
-type GetGroupInfoResponse = Group;
+type GetGroupInfoResponse = components['schemas']['Group$mZFLkyvTelC5g8XnyQrpOw'];
 
-export async function getGroupInfo({ path }: GetGroupInfoProps) {
+export async function getGroupInfo({
+  path,
+}: GetGroupInfoProps): Promise<GetGroupInfoResponse | false> {
   const response = await authenticateRequest<GetGroupInfoResponse>({
     method: 'get',
     url: `/api/v1/groups/${path.groupId}`,

@@ -38,6 +38,26 @@ function CreateMembersModal() {
   });
   const [selectedMemberKeys, setSelectedMemberKeys] = useState<number[]>([]);
 
+  const getOptionalData = ({
+    orgName,
+    positionName,
+  }: {
+    orgName: string;
+    positionName: string;
+  }) => {
+    const findOrgName: string | undefined = org.find(({ name }) => name === orgName)?.name;
+    const findPositionName: string | undefined = positions.find(
+      ({ name }) => name === positionName,
+    )?.name;
+
+    const organization: MemberData['organization'] =
+      typeof findOrgName === 'undefined' ? undefined : findOrgName;
+    const position: MemberData['position'] =
+      typeof findPositionName === 'undefined' ? undefined : findPositionName;
+
+    return { organization, position };
+  };
+
   const csvFileToArray: (text: string) => T.Rows['existing'] = (text: string) => {
     const csvRows = text
       .slice(text.indexOf('\n') + 1)
@@ -47,15 +67,7 @@ function CreateMembersModal() {
     return csvRows.map((row, index) => {
       const [id, name, password, email, orgName, positionName] = row.split(',');
       //TODO: org, position이 Page가 있는데 find할때 나오지 않은 것은 어떻게 할 것인지, limit을 걍 엄청 많이 때리나
-      const findOrgName: string | undefined = org.find(({ name }) => name === orgName)?.name;
-      const findPositionName: string | undefined = positions.find(
-        ({ name }) => name === positionName,
-      )?.name;
-
-      const organization: MemberData['organization'] =
-        typeof findOrgName === 'undefined' ? undefined : findOrgName;
-      const position: MemberData['position'] =
-        typeof findPositionName === 'undefined' ? undefined : findPositionName;
+      const { organization, position } = getOptionalData({ orgName, positionName });
 
       const uuid = uuidv4();
       const shortUuid = uuid.split('-')[0];
@@ -123,19 +135,23 @@ function CreateMembersModal() {
     const file = files[0];
     const ext = file.name.split('.').pop();
 
+    const handleSelectedMemberKeys = (dataSource: T.Rows['existing']) => {
+      setSelectedMemberKeys(
+        dataSource
+          .filter(({ id, name, password }) =>
+            createPasswordType === 'auto' ? id && name : id && name && password,
+          )
+          .map(({ key }) => key),
+      );
+    };
+
     switch (ext) {
       case 'csv': {
         const dataSource: T.Rows['existing'] = await convertCsv(file);
         console.log({ dataSource });
         // return result;
 
-        setSelectedMemberKeys(
-          dataSource
-            .filter(({ id, name, password }) =>
-              createPasswordType === 'auto' ? id && name : id && name && password,
-            )
-            .map(({ key }) => key),
-        );
+        handleSelectedMemberKeys(dataSource);
         setRows({ existing: dataSource, current: dataSource });
         return;
       }
@@ -150,15 +166,7 @@ function CreateMembersModal() {
             const uuid = uuidv4();
             const shortUuid = uuid.split('-')[0];
 
-            const findOrgName: string | undefined = org.find(({ name }) => name === orgName)?.name;
-            const findPositionName: string | undefined = positions.find(
-              ({ name }) => name === positionName,
-            )?.name;
-
-            const organization: MemberData['organization'] =
-              typeof findOrgName === 'undefined' ? undefined : findOrgName;
-            const position: MemberData['position'] =
-              typeof findPositionName === 'undefined' ? undefined : findPositionName;
+            const { organization, position } = getOptionalData({ orgName, positionName });
 
             console.log({ password, organization, position });
             return {
@@ -173,14 +181,7 @@ function CreateMembersModal() {
           },
         );
 
-        setSelectedMemberKeys(
-          dataSource
-            .filter(({ id, name, password }) =>
-              createPasswordType === 'auto' ? id && name : id && name && password,
-            )
-            .map(({ key }) => key),
-        );
-
+        handleSelectedMemberKeys(dataSource);
         setRows({ existing: dataSource, current: dataSource });
         return;
       }
@@ -256,7 +257,7 @@ function CreateMembersModal() {
       onCancel={close}>
       <PasswordCreateWay type={createPasswordType} setType={setCreatePasswordType} />
 
-      <FileUpload isUpload={isUpload} setIsUpload={setIsUpload} upload={upload} />
+      <FileUpload setIsUpload={setIsUpload} upload={upload} />
 
       <BatchesMember
         isUpload={isUpload}

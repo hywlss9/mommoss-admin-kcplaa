@@ -17,7 +17,7 @@ type CreateAssociationResponse = unknown;
 export async function createAssociation({
   data,
   headers,
-}: CreateAssociationProps): Promise<CreateAssociationResponse> {
+}: CreateAssociationProps): Promise<CreateAssociationResponse | false> {
   const response = await authenticateRequest<CreateAssociationResponse>({
     method: 'post',
     url: `/api/v1/admin/associations/teams`,

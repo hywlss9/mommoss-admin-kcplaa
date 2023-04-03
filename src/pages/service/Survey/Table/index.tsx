@@ -28,6 +28,7 @@ function SurveyTable() {
   const dispatch = useDispatch();
 
   const [selectedSurveys, setSelectedSurveys] = useState<T.SurveyTableDataSource>([]);
+  const [page, setPage] = useState<number>(1);
   const [searchValue, setSearchValue] = useState<string | undefined>();
   const [dir, setDir] = useState<GetSurveysQuery['dir']>('desc');
 
@@ -152,11 +153,15 @@ function SurveyTable() {
       return false;
     }
 
+    setPage(1);
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
   const resetSearchValue = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue(undefined);
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue(undefined);
+    }
   };
 
   return (
@@ -181,6 +186,7 @@ function SurveyTable() {
           onSelectAll: selectAll,
         }}
         pagination={{
+          current: page,
           position: ['bottomCenter'],
           total: dataSource.length,
           showSizeChanger: false,

@@ -14,7 +14,10 @@ interface GetRolesProps {
 
 type GetRolesResponse = components['schemas']['List$GroupRole$l332XqYp873s5b6FWQXPSA'];
 
-export async function getRoles({ query, headers }: GetRolesProps): Promise<GetRolesResponse> {
+export async function getRoles({
+  query,
+  headers,
+}: GetRolesProps): Promise<GetRolesResponse | false> {
   const response = await authenticateRequest<GetRolesResponse>({
     method: 'get',
     url: `/api/v1/admin/roles`,

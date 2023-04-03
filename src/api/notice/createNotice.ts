@@ -17,7 +17,7 @@ type CreateNoticeResponse = unknown;
 export async function createNotice({
   data,
   headers,
-}: CreateNoticeProps): Promise<CreateNoticeResponse> {
+}: CreateNoticeProps): Promise<CreateNoticeResponse | false> {
   const response = await authenticateRequest<CreateNoticeResponse>({
     method: 'post',
     url: `/api/v1/admin/notices`,

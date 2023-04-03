@@ -18,7 +18,7 @@ type DeleteSurveyQuestionResponse = number;
 export async function deleteSurveyQuestion({
   path,
   headers,
-}: DeleteSurveyQuestionCategoryProps): Promise<DeleteSurveyQuestionResponse> {
+}: DeleteSurveyQuestionCategoryProps): Promise<DeleteSurveyQuestionResponse | false> {
   const response = await authenticateRequest<DeleteSurveyQuestionResponse>({
     method: 'delete',
     url: `/api/v1/admin/surveys/${path.surveyId}/questions/${path.questionId}`,

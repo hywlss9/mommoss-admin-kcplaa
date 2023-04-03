@@ -10,6 +10,7 @@ import { openModal } from '@reduce/modals';
 
 import { deleteAssociationMembers, getAssociationDetail } from '@api/group';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { off, on } from '@utils/globalEvents';
 
 import TableHeader from '@components/TableHeader';
@@ -27,6 +28,7 @@ function AssociationMemberTable({ associationId }: T.AssociationMemberTableProps
   const dispatch = useDispatch();
 
   const [association, setAssociation] = useState<GetAssociationDetailResponse | undefined>();
+  const [page, setPage] = useState<number>(1);
   const [searchValue, setSearchValue] = useState<string>('');
   const [selectedMembers, setSelectedMembers] = useState<T.MemberTableDataSource>([]);
 
@@ -70,7 +72,10 @@ function AssociationMemberTable({ associationId }: T.AssociationMemberTableProps
 
     const response = await getAssociationDetail({ path: { teamId: associationId } });
 
-    if (!response) return false;
+    if (getIsResponseFalse(response)) {
+      message.error('그룹 정보를 불러오는데 실패했습니다.');
+      return false;
+    }
 
     setAssociation(response);
 
@@ -84,7 +89,10 @@ function AssociationMemberTable({ associationId }: T.AssociationMemberTableProps
   };
 
   const handleSearchText = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue('');
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue('');
+    }
   };
 
   const search = (value: string) => {
@@ -92,7 +100,7 @@ function AssociationMemberTable({ associationId }: T.AssociationMemberTableProps
       message.info('검색어는 2글자 이상이어야 합니다.');
       return false;
     }
-
+    setPage(1);
     setSearchValue(value);
   };
 
@@ -133,7 +141,15 @@ function AssociationMemberTable({ associationId }: T.AssociationMemberTableProps
 
     const memberIds = selectedMembers.map(({ id }) => id);
 
-    await deleteAssociationMembers({ path: { teamId: association.id }, data: { memberIds } });
+    const response = await deleteAssociationMembers({
+      path: { teamId: association.id },
+      data: { memberIds },
+    });
+
+    if (getIsResponseFalse(response)) {
+      message.error('멤버 삭제에 실패했습니다.');
+      return false;
+    }
 
     setSelectedMembers([]);
     message.success('멤버가 팀에서 삭제되었습니다.');
@@ -211,10 +227,12 @@ function AssociationMemberTable({ associationId }: T.AssociationMemberTableProps
           onSelectAll: selectAll,
         }}
         pagination={{
+          current: page,
           pageSize: 8,
           position: ['bottomCenter'],
           total: dataSource.length,
           showSizeChanger: false,
+          onChange: setPage,
         }}
         footer={() => (
           <TableTags

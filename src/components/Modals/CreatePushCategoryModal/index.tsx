@@ -40,7 +40,7 @@ function CreatePushCategoryModal() {
     return;
   };
 
-  const footers = [
+  const footerBtns = [
     <Button key='cancel' onClick={close}>
       취소
     </Button>,
@@ -54,7 +54,7 @@ function CreatePushCategoryModal() {
   }, []);
 
   return (
-    <Modal open={true} title='카테고리 추가' footer={footers} onCancel={close}>
+    <Modal open={true} title='카테고리 추가' footer={footerBtns} onCancel={close}>
       <Input
         ref={inputRef}
         placeholder='알림메시지 카테고리 이름을 입력하세요'

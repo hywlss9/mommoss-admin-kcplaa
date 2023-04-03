@@ -140,11 +140,15 @@ function NoticeTable() {
       return false;
     }
 
+    setPage(1);
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
   const resetSearchValue = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue(undefined);
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue(undefined);
+    }
   };
 
   useEffect(() => {
@@ -177,6 +181,7 @@ function NoticeTable() {
         }}
         pagination={{
           total,
+          current: page,
           position: ['bottomCenter'],
           showSizeChanger: false,
           onChange: setPage,

@@ -70,7 +70,15 @@ function UpdateSurveyModal({ surveyId }: T.UpdateSurveyModalProps) {
       deleteQuestionArr,
     });
 
-    await updateSurvey({ path: { surveyId }, data: { ...updatedSurvey, ...surveySetting } });
+    const response = await updateSurvey({
+      path: { surveyId },
+      data: { ...updatedSurvey, ...surveySetting },
+    });
+
+    if (getIsResponseFalse(response)) {
+      message.error('설문 수정에 실패했습니다.');
+      return false;
+    }
 
     for await (const question of updateQuestionArr) {
       await updateSurveyQuestion({
@@ -144,7 +152,7 @@ function UpdateSurveyModal({ surveyId }: T.UpdateSurveyModalProps) {
     console.log({ surveyId });
   }, [surveyId]);
 
-  const footer = [
+  const footerBtns = [
     <Button key='cancel' onClick={close}>
       취소
     </Button>,
@@ -157,7 +165,7 @@ function UpdateSurveyModal({ surveyId }: T.UpdateSurveyModalProps) {
     <Modal
       open={true}
       title='설문 수정'
-      footer={footer}
+      footer={footerBtns}
       width='800px'
       bodyStyle={{
         overflowY: 'auto',

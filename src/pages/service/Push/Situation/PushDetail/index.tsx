@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 
+import { message } from 'antd';
 import dayjs from 'dayjs';
 import { useDispatch } from 'react-redux';
 
 import { openModal } from '@reduce/modals';
 
 import { getPushDetail } from '@api/push';
+
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 
 import colors from '@constants/colors';
 
@@ -23,7 +26,10 @@ function PushDetail({ pushId }: T.PushDetailProps) {
     const getPush = async () => {
       const response = await getPushDetail({ path: { notificationId: pushId } });
 
-      if (!response) return false;
+      if (getIsResponseFalse(response)) {
+        message.error('알림 메시지 정보를 가져오는데 실패했습니다.');
+        return false;
+      }
       console.log({ response });
       setPush(response);
     };

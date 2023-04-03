@@ -13,7 +13,10 @@ interface GetNoticesProps {
 
 type GetNoticesResponse = components['schemas']['List$Notice$Cbwe92YYn1sQ4w7UU6OECg'];
 
-export async function getNotices({ query, headers }: GetNoticesProps): Promise<GetNoticesResponse> {
+export async function getNotices({
+  query,
+  headers,
+}: GetNoticesProps): Promise<GetNoticesResponse | false> {
   const response = await authenticateRequest<GetNoticesResponse>({
     method: 'get',
     url: `/api/v1/admin/notices`,

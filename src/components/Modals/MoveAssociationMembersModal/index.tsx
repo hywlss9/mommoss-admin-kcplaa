@@ -24,7 +24,7 @@ function MoveOrganizationMembers({
 
   const [selectedGroupId, setSelectedGroupId] = useState<number | undefined>();
 
-  const close = () => dispatch(closeModal('updateAdmin'));
+  const close = () => dispatch(closeModal('moveAssociationMembers'));
 
   const select = (data: AssociationTableData, selected: boolean) => {
     console.log({ data, selected });
@@ -55,7 +55,7 @@ function MoveOrganizationMembers({
     close();
   };
 
-  const footerButtons = [
+  const footerBtns = [
     <Button key='cancel' onClick={close}>
       취소
     </Button>,
@@ -68,7 +68,7 @@ function MoveOrganizationMembers({
     <Modal
       open={true}
       title='다른 조직으로 이동'
-      footer={footerButtons}
+      footer={footerBtns}
       width='400px'
       bodyStyle={{ paddingTop: '12px' }}
       onCancel={close}>

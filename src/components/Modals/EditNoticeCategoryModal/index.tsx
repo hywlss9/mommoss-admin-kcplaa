@@ -12,6 +12,7 @@ import useGetNoticeCategories from '@hooks/queries/notice/useGetNoticeCategories
 
 import { deleteNoticeCategory } from '@api/notice';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { off, on } from '@utils/globalEvents';
 
 import TableHeader from '@components/TableHeader';
@@ -40,14 +41,15 @@ function EditNoticeCategoryModal() {
         dataIndex: 'name',
         render: (text: string, { id }: NoticeCategory) => {
           const handleDeleteCategory = async () => {
-            try {
-              await deleteNoticeCategory({ path: { noticeCategoryId: id } });
+            const response = await deleteNoticeCategory({ path: { noticeCategoryId: id } });
 
-              message.success('공지 카테고리가 삭제되었습니다.');
-              refetch();
-            } catch (error) {
-              console.log({ error });
+            if (getIsResponseFalse(response)) {
+              message.error('공지 카테고리 삭제에 실패했습니다. 다시 시도해주세요.');
+              return false;
             }
+
+            message.success('공지 카테고리가 삭제되었습니다.');
+            refetch();
           };
 
           return (
@@ -118,7 +120,7 @@ function EditNoticeCategoryModal() {
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
-  const close = () => dispatch(closeModal('createNoticeCategory'));
+  const close = () => dispatch(closeModal('editNoticeCategory'));
 
   const openCreateNoticeCategoryModal = () => dispatch(openModal({ name: 'createNoticeCategory' }));
 

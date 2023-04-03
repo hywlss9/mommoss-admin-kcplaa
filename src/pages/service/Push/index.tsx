@@ -20,6 +20,7 @@ function Push() {
   return (
     <C.Container>
       <C.Title>알림메시지</C.Title>
+      {/* TODO: defaultKey navMenuKey로 */}
       <NavMenu items={navMenuItems} defaultKey='write' />
       {navMenuKey === 'write' && <SendMessage />}
       {navMenuKey === 'situation' && <Situation />}

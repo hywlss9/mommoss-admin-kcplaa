@@ -18,7 +18,7 @@ type DeletePositionResponse = number;
 export async function deletePosition({
   path,
   headers,
-}: DeletePositionCategoryProps): Promise<DeletePositionResponse> {
+}: DeletePositionCategoryProps): Promise<DeletePositionResponse | false> {
   const response = await authenticateRequest<DeletePositionResponse>({
     method: 'delete',
     url: `/api/v1/admin/positions/${path.positionId}`,

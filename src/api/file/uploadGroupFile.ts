@@ -16,7 +16,7 @@ type CreateNoticeResponse = string;
 export async function uploadGroupFile({
   data,
   headers,
-}: UploadGroupFileProps): Promise<CreateNoticeResponse> {
+}: UploadGroupFileProps): Promise<CreateNoticeResponse | false> {
   const response = await authenticateRequest<CreateNoticeResponse>({
     method: 'post',
     url: `/api/v1/files/group`,

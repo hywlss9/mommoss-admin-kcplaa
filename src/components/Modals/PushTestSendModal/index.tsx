@@ -103,7 +103,7 @@ function PushTestSendModal(props: T.PushTestSendModalProps) {
         ? '테스트 알림메시지 예약 발송이 저장되었습니다.'
         : '테스트 알림메시지가 전송되었습니다.',
     );
-
+    close();
     navigate('/service/push?menu=situation');
   };
 

@@ -13,13 +13,13 @@ interface GetFamilyEventsProps {
   headers?: OmitGroupIdInHeader<GetFamilyEventsHeaders>;
 }
 
-type GetFamiyEventsResponse = components['schemas']['List$Event$4_H5TmjlkNHtTJ3G3Hrwuw'];
+type GetFamilyEventsResponse = components['schemas']['List$Event$XVVAi-yfwQ5XUBu7jTmzrQ'];
 
 export async function getFamilyEvents({
   query,
   headers,
-}: GetFamilyEventsProps): Promise<GetFamiyEventsResponse> {
-  const response = await authenticateRequest<GetFamiyEventsResponse>({
+}: GetFamilyEventsProps): Promise<GetFamilyEventsResponse | false> {
+  const response = await authenticateRequest<GetFamilyEventsResponse>({
     method: 'get',
     url: `/api/v1/admin/events`,
     headers,
@@ -30,4 +30,4 @@ export async function getFamilyEvents({
   return response;
 }
 
-export type { GetFamilyEventsQuery, GetFamiyEventsResponse };
+export type { GetFamilyEventsQuery, GetFamilyEventsResponse };

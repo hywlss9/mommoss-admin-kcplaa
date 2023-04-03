@@ -17,6 +17,7 @@ interface MemberTableProps extends SelectedAssociationMemberData {
   pageSize?: number;
   header?: boolean;
   search?: boolean;
+  isSelect?: boolean;
   tags?: 'top' | 'bottom';
   blackList?: string[];
 }

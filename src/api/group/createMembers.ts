@@ -17,7 +17,7 @@ type CreateMembersResponse = components['schemas']['BulkCreateGroupOrganizationM
 export async function createMembers({
   data,
   headers,
-}: CreateMembersProps): Promise<CreateMembersResponse> {
+}: CreateMembersProps): Promise<CreateMembersResponse | false> {
   const response = await authenticateRequest<CreateMembersResponse>({
     method: 'post',
     url: `/api/v1/admin/organizations/members/bulk`,

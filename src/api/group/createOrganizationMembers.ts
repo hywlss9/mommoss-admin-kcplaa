@@ -21,7 +21,7 @@ export async function createOrganizationMembers({
   path,
   data,
   headers,
-}: CreateOrganizationMembersProps): Promise<CreateOrganizationMembersResponse> {
+}: CreateOrganizationMembersProps): Promise<CreateOrganizationMembersResponse | false> {
   const response = await authenticateRequest<CreateOrganizationMembersResponse>({
     method: 'post',
     url: `/api/v1/admin/organizations/teams/${path.teamId}/members`,

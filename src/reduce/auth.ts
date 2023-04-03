@@ -1,26 +1,24 @@
-export const SET_AUTH = 'AUTH/SET_AUTH';
-
-export const setAuth = (data: Partial<Auth>) => ({ type: SET_AUTH, data });
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 interface Auth {
-  accessToken: string | null;
+  accessToken: string;
 }
 
-type AuthAction = ReturnType<typeof setAuth>;
+const initialState: Auth = { accessToken: '' };
 
-const initalState: Auth = {
-  accessToken: null,
-};
+const auth = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    setToken: (state, action: PayloadAction<Auth>) => {
+      state.accessToken = action.payload.accessToken;
+    },
+    resetAuth: state => {
+      state = initialState;
+    },
+  },
+});
 
-function auth(state = initalState, action: AuthAction) {
-  switch (action.type) {
-    case SET_AUTH: {
-      return { ...state, ...action.data };
-    }
-    default: {
-      return state;
-    }
-  }
-}
-
-export default auth;
+export const { setToken, resetAuth } = auth.actions;
+export default auth.reducer;

@@ -5,6 +5,8 @@ import { useSelector } from 'react-redux';
 import type { RootState } from '@reduce';
 
 import ApproveFamilyEventModal from '@components/Modals/ApproveFamilyEventModal';
+import CreateBannerModal from '@components/Modals/BannerFormModal/Create';
+import UpdateBannerModal from '@components/Modals/BannerFormModal/Update';
 import CreateAdminsModal from '@components/Modals/CreateAdminsModal';
 import CreateAssociationMembersModal from '@components/Modals/CreateAssociationMembersModal';
 import CreateAssociationModal from '@components/Modals/CreateAssociationModal';
@@ -59,6 +61,9 @@ function ModalManager() {
                 case 'createPushCategory': {
                   return <CreatePushCategoryModal />;
                 }
+                case 'createBanner': {
+                  return <CreateBannerModal />;
+                }
                 case 'createMember': {
                   return <CreateMemberModal />;
                 }
@@ -100,6 +105,9 @@ function ModalManager() {
                 }
                 case 'updateAdmin': {
                   return <UpdateAdminModal {...props} />;
+                }
+                case 'updateBanner': {
+                  return <UpdateBannerModal {...props} />;
                 }
                 case 'updateNotice': {
                   return <UpdateNoticeModal {...props} />;

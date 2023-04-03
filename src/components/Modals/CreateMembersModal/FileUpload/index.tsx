@@ -7,7 +7,7 @@ import Text from '@components/Text';
 import * as S from '../styled';
 import type * as T from './type';
 
-function FileUpload({ isUpload, setIsUpload, upload }: T.FileUploadProps) {
+function FileUpload({ setIsUpload, upload }: T.FileUploadProps) {
   return (
     <>
       <NumberTitle number={2} title='파일 등록' />
@@ -27,12 +27,7 @@ function FileUpload({ isUpload, setIsUpload, upload }: T.FileUploadProps) {
             </a>
           </Text>
         </S.LinkBox>
-        <FileUploader
-          isUpload={isUpload}
-          accept={['.csv, .xlsx']}
-          setIsUpload={setIsUpload}
-          upload={upload}
-        />
+        <FileUploader accept={['.csv, .xlsx']} setIsUpload={setIsUpload} upload={upload} />
       </S.Box>
     </>
   );

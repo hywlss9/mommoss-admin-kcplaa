@@ -18,7 +18,7 @@ type GetPushesResponse = components['schemas']['Notification$TJE48aJZdLstGzOQ-yS
 export async function getPushDetail({
   path,
   headers,
-}: GetPushDetailProps): Promise<GetPushesResponse> {
+}: GetPushDetailProps): Promise<GetPushesResponse | false> {
   const response = await authenticateRequest<GetPushesResponse>({
     method: 'get',
     url: `/api/v1/admin/notifications/${path.notificationId}`,

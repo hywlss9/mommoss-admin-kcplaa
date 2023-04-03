@@ -23,7 +23,7 @@ export async function login({
   platform,
   uuid,
   test,
-}: LoginProps): Promise<LoginResponse> {
+}: LoginProps): Promise<LoginResponse | false> {
   if (test) {
     return testRequest<LoginResponse>({
       accessToken: 'accessToken',

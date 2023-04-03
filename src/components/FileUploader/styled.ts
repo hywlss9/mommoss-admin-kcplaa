@@ -18,7 +18,17 @@ export const FileUplaodBox = styled.div`
     padding: 0 64px;
   }
   > input {
-    display: none;
+    display: none !important;
+    visibility: hidden;
+    opacity: 0;
+    margin: 0;
+  }
+`;
+
+export const FileUploadButtonBox = styled.div`
+  display: inline-block;
+  > input {
+    display: none !important;
     visibility: hidden;
     opacity: 0;
     margin: 0;

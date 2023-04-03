@@ -17,7 +17,7 @@ type CreateOrganizationResponse = unknown;
 export async function createOrganization({
   data,
   headers,
-}: CreateOrganizationProps): Promise<CreateOrganizationResponse> {
+}: CreateOrganizationProps): Promise<CreateOrganizationResponse | false> {
   const response = await authenticateRequest<CreateOrganizationResponse>({
     method: 'post',
     url: `/api/v1/admin/organizations/teams`,

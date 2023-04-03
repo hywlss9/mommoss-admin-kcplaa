@@ -21,7 +21,7 @@ export async function createSurveyQuestion({
   path,
   data,
   headers,
-}: CreateSurveyQuestionProps): Promise<CreateSurveyQuestionResponse> {
+}: CreateSurveyQuestionProps): Promise<CreateSurveyQuestionResponse | false> {
   const response = await authenticateRequest<CreateSurveyQuestionResponse>({
     method: 'post',
     url: `/api/v1/admin/surveys/${path.surveyId}/questions`,

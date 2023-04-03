@@ -16,7 +16,7 @@ type GetSurveyDetailResponse = components['schemas']['Survey$XTLPmAfq-V39AwN2J_R
 export async function getSurveyDetail({
   path,
   headers,
-}: GetSurveyDetailProps): Promise<GetSurveyDetailResponse> {
+}: GetSurveyDetailProps): Promise<GetSurveyDetailResponse | false> {
   const response = await authenticateRequest<GetSurveyDetailResponse>({
     method: 'get',
     url: `/api/v1/admin/surveys/${path.surveyId}`,

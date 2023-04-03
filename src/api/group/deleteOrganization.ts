@@ -18,7 +18,7 @@ type DeleteOrganizationResponse = number | boolean;
 export async function deleteOrganization({
   path,
   headers,
-}: DeleteOrganizationCategoryProps): Promise<DeleteOrganizationResponse> {
+}: DeleteOrganizationCategoryProps): Promise<DeleteOrganizationResponse | false> {
   const response = await authenticateRequest<DeleteOrganizationResponse>({
     method: 'delete',
     url: `/api/v1/admin/organizations/teams/${path.teamId}`,

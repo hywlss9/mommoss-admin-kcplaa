@@ -18,7 +18,7 @@ type DeleteMemberResponse = number;
 export async function deleteMember({
   path,
   headers,
-}: DeleteMemberCategoryProps): Promise<DeleteMemberResponse> {
+}: DeleteMemberCategoryProps): Promise<DeleteMemberResponse | false> {
   const response = await authenticateRequest<DeleteMemberResponse>({
     method: 'delete',
     url: `/api/v1/admin/members/${path.groupMemberId}`,

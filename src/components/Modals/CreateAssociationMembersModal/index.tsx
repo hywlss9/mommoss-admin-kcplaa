@@ -66,7 +66,10 @@ function CreateAssociationMembersModal({ associationId }: T.CreateAssociationMem
   }, [associationMembers]);
 
   const handleSearchText = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue(undefined);
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue(undefined);
+    }
   };
 
   const search = (value: string) => {
@@ -75,6 +78,7 @@ function CreateAssociationMembersModal({ associationId }: T.CreateAssociationMem
       return false;
     }
 
+    setPage(1);
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
@@ -124,7 +128,7 @@ function CreateAssociationMembersModal({ associationId }: T.CreateAssociationMem
     close();
   };
 
-  const close = () => dispatch(closeModal('createAssociation'));
+  const close = () => dispatch(closeModal('createAssociationMembers'));
 
   const footerBtns = [
     <Button key='cancel' onClick={close}>
@@ -156,6 +160,7 @@ function CreateAssociationMembersModal({ associationId }: T.CreateAssociationMem
         }}
         pagination={{
           total,
+          current: page,
           pageSize: PAGE_SIZE,
           position: ['bottomCenter'],
           showSizeChanger: false,

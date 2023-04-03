@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { ReactComponent as AddressBook } from '@assets/icons/address-book.svg';
 import { ReactComponent as Business } from '@assets/icons/business.svg';
+import { ReactComponent as Home } from '@assets/icons/home.svg';
 import { ReactComponent as Star } from '@assets/icons/star.svg';
 
 import * as S from './styled';
@@ -20,16 +21,23 @@ function GlobalNav() {
 
   const items = [
     {
+      key: 'home',
+      label: '홈화면관리',
+      icon: <Home />,
+      children: [{ key: '/home/banner', label: '배너 관리', onClick: onClickMenu }],
+    },
+    {
       key: 'business',
       label: '사업장관리',
       icon: <Business />,
       children: [
+        // {
+        //   key: '/business/info',
+        //   label: '사업장정보',
+        //   onClick: onClickMenu,
+        // },
         {
-          key: '/business/info',
-          label: '사업장정보',
-          onClick: onClickMenu,
-        },
-        {
+          //TODO: 폴더명이랑 맞추기
           key: '/business/member',
           label: '구성원',
           onClick: onClickMenu,

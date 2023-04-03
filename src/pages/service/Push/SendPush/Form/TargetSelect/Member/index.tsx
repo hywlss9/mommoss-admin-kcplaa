@@ -1,7 +1,14 @@
 import AssociationMemberTable from '@pages/address-book/AssociationMembers/Table';
 import type { SelectedAssociationMemberData } from '@pages/address-book/AssociationMembers/Table/type';
 
-const blackList: string[] = ['position', 'email'];
+const blackList: string[] = [
+  'licenseCb',
+  'callNumber',
+  'receive',
+  'useMommoss',
+  'lastActivatedAt',
+  'position',
+];
 
 function Member({ selectedMembers, setSelectedMembers }: SelectedAssociationMemberData) {
   return (
@@ -10,6 +17,7 @@ function Member({ selectedMembers, setSelectedMembers }: SelectedAssociationMemb
       setSelectedMembers={setSelectedMembers}
       pageSize={6}
       search={true}
+      isSelect={true}
       tags='top'
       header={false}
       blackList={blackList}

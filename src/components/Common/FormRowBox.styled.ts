@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-export const FormRowBox = styled.div`
+export const FormRowBox = styled.div<{ align?: string }>`
   display: flex;
-  align-items: center;
+  align-items: ${({ align }) => align ?? 'center'};
   > *:not(:last-child) {
     flex-grow: 1;
   }
-  > button {
+  > *:last-child {
     margin-left: 16px;
   }
 `;

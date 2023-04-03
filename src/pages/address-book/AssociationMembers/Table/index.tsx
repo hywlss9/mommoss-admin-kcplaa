@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { ChangeEvent } from 'react';
 
-import { Input, Table, message } from 'antd';
+import { Input, Table, Tooltip, message } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/lib/table';
 import dayjs from 'dayjs';
 import update from 'immutability-helper';
 
 import useGetAssociationMembers from '@hooks/queries/group/useGetAssociationMembers';
+import useGetPushCategories from '@hooks/queries/push/useGetPushCategories';
 
 import TableHeader from '@components/TableHeader';
 import TableTags from '@components/TableTags';
@@ -14,60 +15,11 @@ import TableTags from '@components/TableTags';
 import * as S from './styled';
 import type * as T from './type';
 
-const columnsData: ColumnsType<T.AssociationMembersData> = [
-  // { title: '아이디', dataIndex: 'id',  },
-  { title: '이름', dataIndex: 'name', key: 'name', render: (_, { name }) => name },
-  // {
-  //   title: '소속',
-  //   dataIndex: 'affiliation',
-  //   render: (_, { teams }) => {
-  //     const isData = !!teams.length;
-  //     return isData ? <>{teams.map(({ name }) => `${name}, `)}</> : '-';
-  //   },
-  // },
-  // {
-  //   title: '직위',
-  //   dataIndex: 'position',
-  //   // @ts-ignore
-  //   render: (_, { position }) => {
-  //     return position ? position.name : '-';
-  //   },
-  // },
-  // { title: '이메일', dataIndex: 'email', render: (_, { user: { email } }) => email || '' },
-  // {
-  //   title: '상태',
-  //   dataIndex: 'status',
-  //   render: () => '미접속',
-  // },
-  {
-    title: '수신설정',
-    dataIndex: 'receive',
-    key: 'receive',
-    render: () => '-',
-  },
-  {
-    title: '상태',
-    dataIndex: 'status',
-    key: 'status',
-    render: () => '사용',
-  },
-  {
-    title: '최근접속',
-    dataIndex: 'lastActivatedAt',
-    key: 'lastActivatedAt',
-    render: (_, record) => {
-      if (!record?.user) return '-';
-
-      const { lastActivatedAt } = record.user;
-      return lastActivatedAt ? dayjs(lastActivatedAt).format('YYYY-MM-DD HH:mm') : '-';
-    },
-  },
-];
-
 /**
  * props
  * * header: boolean - header + 검색창
  * * search: boolean - 단일 검색창
+ * * isSelect: boolean - row 선택 유무
  * * tags: undefined | 'top' | 'bootom' - select 태그 표시
  * * blackList: string[] - 보이지 않을 속성
  */
@@ -76,6 +28,7 @@ function MemberTable({
   setSelectedMembers: _setSelectedMembers,
   pageSize = 10,
   header = true,
+  isSelect = false,
   search,
   tags,
   blackList,
@@ -91,6 +44,74 @@ function MemberTable({
     total,
     isLoading,
   } = useGetAssociationMembers({ page, limit: pageSize, q: searchValue });
+  const { data: pushCategories } = useGetPushCategories();
+
+  const columnsData: ColumnsType<T.AssociationMembersData> = useMemo(() => {
+    return [
+      { title: '이름', dataIndex: 'name', key: 'name', render: (_, { name }) => name },
+      {
+        title: '기수',
+        dataIndex: 'licenseCb',
+        key: 'licenseCb',
+        render: licenseCb => (licenseCb ? `${licenseCb}기` : '-'),
+      },
+      {
+        title: '자격증번호',
+        dataIndex: 'licenseNo',
+        key: 'licenseNo',
+        render: licenseNo => licenseNo ?? '-',
+      },
+      {
+        title: '연락처',
+        dataIndex: 'callNumber',
+        key: 'callNumber',
+        render: (_, { landline, phone, user }) => landline ?? phone ?? user?.phone ?? '-',
+      },
+      {
+        title: '이메일',
+        dataIndex: 'email',
+        key: 'email',
+        render: (_, { email }) => email ?? '-',
+      },
+      {
+        title: '수신설정',
+        dataIndex: 'receive',
+        key: 'receive',
+        render: (_, { user }) => {
+          if (!user) return '-';
+          const groupMember = user.groupMembers[0];
+          const blockedCategories = groupMember.blockedCategories;
+          const isBlockCategories = pushCategories.filter(
+            v => !blockedCategories.map(v => v.id).includes(v.id),
+          );
+          const receiveCategoryNames = isBlockCategories.map(v => v.name).join(', ');
+
+          return (
+            <Tooltip title={receiveCategoryNames}>
+              {pushCategories.length - blockedCategories.length}개
+            </Tooltip>
+          );
+        },
+      },
+      {
+        title: '이용상태',
+        dataIndex: 'useMommoss',
+        key: 'useMommoss',
+        render: useMommoss => (useMommoss ? '사용' : '미사용'),
+      },
+      {
+        title: '최근접속',
+        dataIndex: 'lastActivatedAt',
+        key: 'lastActivatedAt',
+        render: (_, { user }) => {
+          if (!user) return '-';
+
+          const { lastActivatedAt } = user;
+          return lastActivatedAt ? dayjs(lastActivatedAt).format('YYYY-MM-DD HH:mm') : '-';
+        },
+      },
+    ];
+  }, [pushCategories]);
 
   const columns = useMemo(() => {
     if (!blackList || !blackList.length) return columnsData;
@@ -99,13 +120,13 @@ function MemberTable({
       if (!data.key) return false;
       return !blackList.includes(String(data.key));
     });
-  }, [blackList]);
+  }, [blackList, pushCategories]);
 
   const dataSource: T.AssociationMembersDataSource = useMemo(() => {
     return members.map(v => ({ ...v, key: v.id }));
   }, [members]);
 
-  const isTag = useMemo(() => typeof tags !== 'undefined', [tags]);
+  const isTag = typeof tags !== 'undefined';
 
   const select = (data: T.AssociationMembersData, selected: boolean) => {
     setSelectedMembers(prevState => {
@@ -140,12 +161,15 @@ function MemberTable({
       message.info('검색어는 2글자 이상이어야 합니다.');
       return false;
     }
-
+    setPage(1);
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
   const resetSearchValue = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue(undefined);
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue(undefined);
+    }
   };
 
   const tableProps: TableProps<any> = {
@@ -159,9 +183,18 @@ function MemberTable({
           />
         ),
       }),
+    ...(isSelect && {
+      rowSelection: {
+        type: 'checkbox',
+        selectedRowKeys: selectedMembers.map(v => v.key),
+        onSelect: select,
+        onSelectAll: selectAll,
+      },
+    }),
     pagination: {
       pageSize,
       total,
+      current: page,
       position: ['bottomCenter'],
       showSizeChanger: false,
       onChange: setPage,
@@ -173,7 +206,7 @@ function MemberTable({
   }, [selectedMembers]);
 
   return (
-    <S.Container>
+    <S.Container search={search}>
       {header && (
         <TableHeader
           searchInput={true}
@@ -196,18 +229,7 @@ function MemberTable({
           />
         </S.TopTagsBox>
       )}
-      <Table
-        columns={columns}
-        dataSource={dataSource}
-        loading={isLoading}
-        rowSelection={{
-          type: 'checkbox',
-          selectedRowKeys: selectedMembers.map(v => v.key),
-          onSelect: select,
-          onSelectAll: selectAll,
-        }}
-        {...tableProps}
-      />
+      <Table columns={columns} dataSource={dataSource} loading={isLoading} {...tableProps} />
     </S.Container>
   );
 }

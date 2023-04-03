@@ -85,6 +85,7 @@ function AllMembers({
   const [selectedMembers, setSelectedMembers] = useState<T.MemberTableData[]>(
     _selectedMembers || [],
   );
+  const [page, setPage] = useState<number>(1);
   const [searchValue, setSearchValue] = useState<string | undefined>();
 
   const {
@@ -106,7 +107,7 @@ function AllMembers({
     return members.map(v => ({ ...v, key: v.id }));
   }, [members]);
 
-  const isTag = useMemo(() => typeof tags !== 'undefined', [tags]);
+  const isTag = typeof tags !== 'undefined';
 
   const select = (data: T.MemberTableData, selected: boolean) => {
     setSelectedMembers(prevState => {
@@ -167,11 +168,15 @@ function AllMembers({
       return false;
     }
 
+    setPage(1);
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
   const resetSearchValue = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue(undefined);
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue(undefined);
+    }
   };
 
   const tableProps: TableProps<any> = {
@@ -187,6 +192,7 @@ function AllMembers({
       }),
     pagination: {
       pageSize,
+      current: page,
       position: ['bottomCenter'],
       total: members.length,
       showSizeChanger: false,

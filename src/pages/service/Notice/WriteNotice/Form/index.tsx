@@ -10,6 +10,8 @@ import useGetSurveys from '@hooks/queries/survey/useGetSurveys';
 import { uploadGroupFile } from '@api/file';
 import { createNotice } from '@api/notice/createNotice';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
+
 import * as C from '@components/Common';
 import TextEditor from '@components/TextEditor';
 
@@ -77,7 +79,11 @@ function WriteNoticeForm({
       const formData = new FormData();
       formData.append('file', file);
 
-      await uploadGroupFile({ data: formData }).then(id => fileIds.push(id));
+      const response = await uploadGroupFile({ data: formData });
+
+      if (getIsResponseFalse(response)) continue;
+
+      fileIds.push(response);
     }
 
     console.log({ fileIds });
@@ -100,9 +106,14 @@ function WriteNoticeForm({
     }
 
     console.log({ notice });
-    await createNotice({
+    const response = await createNotice({
       data: { title, content, summary, categoryId, surveyId, authorName, fileIds, visible: true },
     });
+
+    if (getIsResponseFalse(response)) {
+      message.error('공지 생성에 실패했습니다. 다시 시도해주세요.');
+      return false;
+    }
 
     message.success('공지가 생성되었습니다.');
     navigate(`/service/notice?menu=list`);

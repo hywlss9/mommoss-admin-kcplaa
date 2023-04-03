@@ -19,7 +19,7 @@ export async function updateNotice({
   path,
   data,
   headers,
-}: UpdateNoticeProps): Promise<UpdateNoticeResponse> {
+}: UpdateNoticeProps): Promise<UpdateNoticeResponse | false> {
   const response = await authenticateRequest<UpdateNoticeResponse>({
     method: 'patch',
     url: `/api/v1/admin/notices/${path.noticeId}`,

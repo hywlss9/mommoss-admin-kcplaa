@@ -9,6 +9,7 @@ import { closeModal } from '@reduce/modals';
 
 import { createNoticeCategory } from '@api/notice';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { trigger } from '@utils/globalEvents';
 
 function CreateNoticeCategoryModal() {
@@ -27,16 +28,17 @@ function CreateNoticeCategoryModal() {
 
     const response = await createNoticeCategory({ data: { name } });
 
-    if (response) {
-      message.success('공지 카테고리가 추가되었습니다.');
-      trigger('CREATED_NOTICE_CATEGORY');
-      close();
-
-      return;
+    if (getIsResponseFalse(response)) {
+      message.error('공지 카테고리 추가에 실패했습니다. 다시 시도해주세요.');
+      return false;
     }
+
+    message.success('공지 카테고리가 추가되었습니다.');
+    trigger('CREATED_NOTICE_CATEGORY');
+    close();
   };
 
-  const footers = [
+  const footerBtns = [
     <Button key='cancel' onClick={close}>
       취소
     </Button>,
@@ -50,7 +52,7 @@ function CreateNoticeCategoryModal() {
   }, []);
 
   return (
-    <Modal open={true} title='카테고리 추가' footer={footers} onCancel={close}>
+    <Modal open={true} title='카테고리 추가' footer={footerBtns} onCancel={close}>
       <Input
         ref={inputRef}
         placeholder='공지 카테고리 이름을 입력하세요'

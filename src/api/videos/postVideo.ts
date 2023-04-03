@@ -14,7 +14,10 @@ interface PostVideoProps {
 
 type PostVideoResponse = unknown;
 
-export async function postVideo({ data, headers }: PostVideoProps): Promise<PostVideoResponse> {
+export async function postVideo({
+  data,
+  headers,
+}: PostVideoProps): Promise<PostVideoResponse | false> {
   const response = await authenticateRequest<PostVideoResponse>({
     method: 'post',
     url: `/api/v1/admin/video-posts`,

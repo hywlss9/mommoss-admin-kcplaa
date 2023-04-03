@@ -79,7 +79,11 @@ function EditNoticeForm({ noticeId, close }: T.EditNoticeFormProps) {
       const formData = new FormData();
       formData.append('file', file);
 
-      await uploadGroupFile({ data: formData }).then(id => fileIds.push(id));
+      const response = await uploadGroupFile({ data: formData });
+
+      if (getIsResponseFalse(response)) continue;
+
+      fileIds.push(response);
     }
 
     console.log({ fileIds });
@@ -97,10 +101,15 @@ function EditNoticeForm({ noticeId, close }: T.EditNoticeFormProps) {
     const { title, content, summary, categoryId, surveyId, authorName, fileIds } = editedNotice;
 
     console.log({ editedNotice });
-    await updateNotice({
+    const response = await updateNotice({
       path: { noticeId },
       data: { title, content, summary, categoryId, surveyId, authorName, fileIds },
     });
+
+    if (getIsResponseFalse(response)) {
+      message.error('공지를 수정하는데 실패했습니다.');
+      return false;
+    }
 
     message.success('공지가 수정되었습니다.');
     close();
@@ -112,6 +121,7 @@ function EditNoticeForm({ noticeId, close }: T.EditNoticeFormProps) {
     if (getIsResponseFalse(response)) {
       message.error('공지를 불러오는데 실패했습니다.');
       close();
+      return false;
     }
 
     const { title, content, categoryId, summary, authorName, attachedFiles, survey } = response;

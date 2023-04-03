@@ -19,7 +19,7 @@ type GetPushCategoriesResponse = PushCategory[];
 export async function getPushCategories({
   query,
   headers,
-}: GetPushCategoriesProps): Promise<GetPushCategoriesResponse> {
+}: GetPushCategoriesProps): Promise<GetPushCategoriesResponse | false> {
   const response = await authenticateRequest<GetPushCategoriesResponse>({
     method: 'get',
     url: `/api/v1/admin/notifications/categories`,

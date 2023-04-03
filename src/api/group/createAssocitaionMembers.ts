@@ -21,7 +21,7 @@ export async function createAssociationMembers({
   path,
   data,
   headers,
-}: CreateAssociationMembersProps): Promise<CreateAssociationMembersResponse> {
+}: CreateAssociationMembersProps): Promise<CreateAssociationMembersResponse | false> {
   const response = await authenticateRequest<CreateAssociationMembersResponse>({
     method: 'post',
     url: `/api/v1/admin/associations/teams/${path.teamId}/members`,

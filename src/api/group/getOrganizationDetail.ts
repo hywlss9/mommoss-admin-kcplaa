@@ -17,7 +17,7 @@ interface GetOrganizationDetailProps {
 export async function getOrganizationDetail({
   path,
   headers,
-}: GetOrganizationDetailProps): Promise<GetOrganizationDetailResponse> {
+}: GetOrganizationDetailProps): Promise<GetOrganizationDetailResponse | false> {
   const response = await authenticateRequest<GetOrganizationDetailResponse>({
     method: 'get',
     url: `/api/v1/admin/organizations/teams/${path.teamId}`,

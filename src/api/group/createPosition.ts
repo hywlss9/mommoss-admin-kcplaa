@@ -18,7 +18,7 @@ type CreatePositionResponse = unknown;
 export async function createPosition({
   data,
   headers,
-}: CreatePositionProps): Promise<CreatePositionResponse> {
+}: CreatePositionProps): Promise<CreatePositionResponse | false> {
   const response = await authenticateRequest<CreatePositionResponse>({
     method: 'post',
     url: `/api/v1/admin/positions`,

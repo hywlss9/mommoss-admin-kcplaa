@@ -12,6 +12,7 @@ import useGetPushCategories from '@hooks/queries/push/useGetPushCategories';
 
 import { updatePushCategory } from '@api/push/updatePushCategory';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { off, on } from '@utils/globalEvents';
 
 import TableHeader from '@components/TableHeader';
@@ -41,7 +42,15 @@ function EditPushCategoryModal() {
         ...data,
         render: (_: any, { id, name, unused, default: isDefault }: PushCategory) => {
           const toggleIsBlock = async () => {
-            await updatePushCategory({ path: { categoryId: id }, data: { unused: !unused } });
+            const response = await updatePushCategory({
+              path: { categoryId: id },
+              data: { unused: !unused },
+            });
+
+            if (getIsResponseFalse(response)) {
+              message.error('카테고리 상태 변경에 실패했습니다. 다시 시도해주세요.');
+              return false;
+            }
 
             message.success(
               <>
@@ -116,7 +125,7 @@ function EditPushCategoryModal() {
     refetch();
   };
 
-  const close = () => dispatch(closeModal('createPushCategory'));
+  const close = () => dispatch(closeModal('editCategory'));
 
   useEffect(() => {
     on('CREATED_PUSH_CATEGORY', refetch);

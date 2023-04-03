@@ -45,7 +45,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject",
-    "getmodel": "npx openapi-typescript@5.4.1 http://192.168.10.178:3002/api-docs/schema --output src/types/model/model.ts"
+    "getmodel": "npx openapi-typescript@5.4.1 https://kcplaa-stg.mommoss.com/api-docs/schema --output src/types/model/model.ts"
   },
   "eslintConfig": {
     "extends": [

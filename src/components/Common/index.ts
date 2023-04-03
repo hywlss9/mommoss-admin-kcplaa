@@ -1,3 +1,5 @@
+export { BannerImg } from './Banner.styled';
+export { CertifiedBadge } from './CertifiedBadge.styled';
 export { Container } from './Container.styled';
-export { Title } from './Title.styled';
 export { FormRowBox } from './FormRowBox.styled';
+export { Title } from './Title.styled';

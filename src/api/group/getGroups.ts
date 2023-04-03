@@ -4,7 +4,7 @@ import type { components } from '@type/model';
 
 type GetGroupsResponse = components['schemas']['List$Group$mZFLkyvTelC5g8XnyQrpOw'];
 
-export async function getGroups() {
+export async function getGroups(): Promise<GetGroupsResponse | false> {
   const response = await authenticateRequest<GetGroupsResponse>({
     method: 'get',
     url: '/api/v1/groups',

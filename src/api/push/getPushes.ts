@@ -15,7 +15,10 @@ interface GetPushesProps {
 
 type GetPushesResponse = components['schemas']['List$Notification$TJE48aJZdLstGzOQ-ySFdA'];
 
-export async function getPushes({ query, headers }: GetPushesProps): Promise<GetPushesResponse> {
+export async function getPushes({
+  query,
+  headers,
+}: GetPushesProps): Promise<GetPushesResponse | false> {
   const response = await authenticateRequest<GetPushesResponse>({
     method: 'get',
     url: `/api/v1/admin/notifications`,

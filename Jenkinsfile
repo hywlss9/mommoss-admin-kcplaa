@@ -49,8 +49,8 @@ pipeline {
           steps {
             script {
               println "Deploy stage server"
-              sh 'sudo rm -rf /var/www/html/kcplaa.mommoss.com/*'
-              sh 'sudo cp -r build/* /var/www/html/kcplaa.mommoss.com'
+              sh 'sudo rm -rf /var/www/html/kcplaa-stg.mommoss.com/*'
+              sh 'sudo cp -r build/* /var/www/html/kcplaa-stg.mommoss.com'
             }
           }
         }

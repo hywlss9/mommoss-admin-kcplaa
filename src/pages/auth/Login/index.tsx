@@ -7,9 +7,11 @@ import type { CheckboxChangeEvent } from 'antd/lib/checkbox';
 import { useDispatch } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
 
-import { setAuth } from '@reduce/auth';
+import { setToken } from '@reduce/auth';
 
 import { login } from '@api/auth/login';
+
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 
 import * as S from './styled';
 
@@ -19,8 +21,8 @@ function Login() {
   const [loginData, setLoginData] = useState<{ id: string; password: string }>({
     // id: '',
     // password: '',
-    
-    // test
+
+    // 테스트용
     id: 'master@ablestor.com',
     password: 'asdf1234!',
   });
@@ -47,14 +49,14 @@ function Login() {
 
     console.log({ response });
 
-    if (!response) {
+    if (getIsResponseFalse(response)) {
       message.error('로그인에 실패하였습니다.');
       return;
     }
 
     const { accessToken, refreshToken } = response;
 
-    dispatch(setAuth({ accessToken }));
+    dispatch(setToken({ accessToken }));
     localStorage.setItem('login-uuid', uuid);
     localStorage.setItem('refreshToken', refreshToken);
     localStorage.setItem('keepLogin', hasKeepLogin ? 'true' : 'false');

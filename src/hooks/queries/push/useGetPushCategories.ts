@@ -15,7 +15,7 @@ function useGetPushCategories(props?: Partial<GetPushCategoriesQuery>) {
     },
   );
 
-  const data = response.data ?? [];
+  const data = typeof response.data === 'boolean' && !response.data ? [] : response.data ?? [];
 
   return { ...response, data };
 }

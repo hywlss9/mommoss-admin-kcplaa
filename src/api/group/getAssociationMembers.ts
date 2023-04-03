@@ -17,7 +17,7 @@ interface GetAssociationMembersProps {
 export async function getAssociationMembers({
   query,
   headers,
-}: GetAssociationMembersProps): Promise<GetAssociationMembersResponse> {
+}: GetAssociationMembersProps): Promise<GetAssociationMembersResponse | false> {
   const response = await authenticateRequest<GetAssociationMembersResponse>({
     method: 'get',
     url: `/api/v1/admin/kcplaa/members`,

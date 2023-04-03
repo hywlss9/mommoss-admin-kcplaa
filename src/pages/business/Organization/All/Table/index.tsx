@@ -10,6 +10,7 @@ import { openModal } from '@reduce/modals';
 
 import { deleteOrganizationMember, getOrganizationDetail } from '@api/group';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
 import { off, on, trigger } from '@utils/globalEvents';
 
 import TableHeader from '@components/TableHeader';
@@ -28,6 +29,7 @@ function OrganiztionMemberTable({ selectedOrganizationId }: T.OrganiztionMemberT
 
   const [org, setOrg] = useState<GetOrganizationDetailResponse | undefined>();
   const [selectedMembers, setSelectedMembers] = useState<T.MemberTableDataSource>([]);
+  const [page, setPage] = useState<number>(1);
   const [searchValue, setSearchValue] = useState<string>('');
 
   const columns: ColumnsType<T.MemberTableData> = [
@@ -88,14 +90,20 @@ function OrganiztionMemberTable({ selectedOrganizationId }: T.OrganiztionMemberT
 
     const response = await getOrganizationDetail({ path: { teamId: selectedOrganizationId } });
 
-    if (!response) return false;
+    if (getIsResponseFalse(response)) {
+      message.error('조직도 정보를 불러오는데 실패했습니다. 다시 시도해주세요.');
+      return false;
+    }
 
     setOrg(response);
     return true;
   };
 
   const handleSearchText = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue('');
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue('');
+    }
   };
 
   const search = (value: string) => {
@@ -104,6 +112,7 @@ function OrganiztionMemberTable({ selectedOrganizationId }: T.OrganiztionMemberT
       return false;
     }
 
+    setPage(1);
     setSearchValue(value);
   };
 
@@ -142,7 +151,15 @@ function OrganiztionMemberTable({ selectedOrganizationId }: T.OrganiztionMemberT
 
     const memberIds = selectedMembers.map(({ id }) => id);
 
-    await deleteOrganizationMember({ path: { teamId: org.id }, data: { memberIds } });
+    const response = await deleteOrganizationMember({
+      path: { teamId: org.id },
+      data: { memberIds },
+    });
+
+    if (getIsResponseFalse(response)) {
+      message.error('멤버 삭제에 실패했습니다. 다시 시도해주세요.');
+      return false;
+    }
 
     message.success('멤버가 팀에서 삭제되었습니다.');
     trigger('RELEASE_ORGANIZATION_MEMBER');
@@ -204,6 +221,7 @@ function OrganiztionMemberTable({ selectedOrganizationId }: T.OrganiztionMemberT
           onSelectAll: selectAll,
         }}
         pagination={{
+          current: page,
           pageSize: 10,
           position: ['bottomCenter'],
           total: dataSource.length,

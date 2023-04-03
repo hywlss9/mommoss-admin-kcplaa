@@ -53,6 +53,7 @@
 
   &.ant-menu-horizontal {
     border-bottom-color: $GRAY_ORIGIN_2;
+    line-height: 44px;
     & .ant-menu-item {
       padding: 0 !important;
     }
@@ -238,9 +239,14 @@ textarea.ant-input {
 
 // Table
 .ant-table-wrapper {
-  .ant-table {
+  .ant-spin-container {
     overflow: hidden;
     border: 1px solid $GRAY_LIGHT_5;
+    border-radius: 5px;
+  }
+  .ant-table {
+    overflow: hidden;
+    border-bottom: 1px solid $GRAY_LIGHT_5;
     border-radius: 5px;
     tr {
       &.ant-table-measure-row {
@@ -286,6 +292,7 @@ textarea.ant-input {
       border: none;
     }
     .ant-pagination-item {
+      margin-inline-end: 16px;
       > a {
         font-weight: 700;
         color: $BLACK;
@@ -298,8 +305,12 @@ textarea.ant-input {
         }
       }
     }
+    .ant-pagination-prev {
+      margin-inline-end: 16px;
+    }
     .ant-pagination-jump-prev .ant-pagination-item-ellipsis,
     .ant-pagination-jump-next .ant-pagination-item-ellipsis {
+      margin-inline-end: 16px;
       letter-spacing: -4px;
     }
   }

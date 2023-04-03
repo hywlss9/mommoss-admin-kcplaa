@@ -15,7 +15,10 @@ interface GetVideosProps {
 
 type GetVideosResponse = components['schemas']['List$VideoPost$mZFLkyvTelC5g8XnyQrpOw'];
 
-export async function getVideos({ query, headers }: GetVideosProps): Promise<GetVideosResponse> {
+export async function getVideos({
+  query,
+  headers,
+}: GetVideosProps): Promise<GetVideosResponse | false> {
   const response = await authenticateRequest<GetVideosResponse>({
     method: 'get',
     url: `/api/v1/admin/video-posts`,

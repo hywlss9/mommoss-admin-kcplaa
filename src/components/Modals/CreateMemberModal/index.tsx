@@ -25,6 +25,7 @@ import type { CreateMemberData } from '@type/group';
 
 import type * as T from './type';
 
+//TODO: RequireDotDesc
 const REQUIRE_DOT_MARGIN_RIGHT = { marginRight: '2px' };
 //organization을 모두 org로 축약하여 작성함
 function CreateMemberModal() {

@@ -18,7 +18,7 @@ type DeleteAssociationResponse = unknown;
 export async function deleteAssociation({
   path,
   headers,
-}: DeleteAssociationCategoryProps): Promise<DeleteAssociationResponse> {
+}: DeleteAssociationCategoryProps): Promise<DeleteAssociationResponse | false> {
   const response = await authenticateRequest<DeleteAssociationResponse>({
     method: 'delete',
     url: `/api/v1/admin/associations/teams/${path.teamId}`,

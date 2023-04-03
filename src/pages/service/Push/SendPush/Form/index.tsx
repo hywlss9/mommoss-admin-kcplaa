@@ -97,7 +97,11 @@ function SendPushForm({ push: _push, setPush: _setPush }: T.SendMessageFormProps
       if (typeof push.noticeId === 'undefined') return;
       const notice = await getNoticeDetail({ path: { noticeId: push.noticeId } });
 
-      if (!notice) return;
+      if (!notice) {
+        message.error('공지사항을 불러오는데 실패했습니다.');
+        return;
+      }
+
       const { id, title, summary, content } = notice;
 
       form.setFieldValue('title', title);

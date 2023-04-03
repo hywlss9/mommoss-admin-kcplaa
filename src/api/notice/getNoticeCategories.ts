@@ -19,7 +19,7 @@ type GetNoticeCategoriesResponse =
 export async function getNoticeCategories({
   query,
   headers,
-}: GetNoticeCategoriesProps): Promise<GetNoticeCategoriesResponse> {
+}: GetNoticeCategoriesProps): Promise<GetNoticeCategoriesResponse | false> {
   const response = await authenticateRequest<GetNoticeCategoriesResponse>({
     method: 'get',
     url: `/api/v1/admin/notices/categories`,

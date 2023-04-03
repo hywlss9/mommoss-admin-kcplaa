@@ -1,6 +1,6 @@
 import { store } from '@reduce';
-import { setAuth } from '@reduce/auth';
-import { setGroup } from '@reduce/group';
+import { resetAuth } from '@reduce/auth';
+import { resetGroup } from '@reduce/group';
 import { closeAllModals } from '@reduce/modals';
 
 import { logout as logoutApi } from '@api/auth/logout';
@@ -12,8 +12,8 @@ import { removeHasKeepLogin, removeRefreshToken } from './localStorage';
 function logout() {
   logoutApi();
   removeCookie('login-uuid');
-  store.dispatch(setAuth({ accessToken: null }));
-  store.dispatch(setGroup(null));
+  store.dispatch(resetAuth());
+  store.dispatch(resetGroup());
   store.dispatch(closeAllModals());
   removeRefreshToken();
   removeHasKeepLogin();

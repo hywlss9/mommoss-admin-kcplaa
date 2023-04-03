@@ -18,7 +18,7 @@ type GetPositionsResponse = components['schemas']['List$GroupPosition$mZFLkyvTel
 export async function getPositions({
   query,
   headers,
-}: GetPositionsProps): Promise<GetPositionsResponse> {
+}: GetPositionsProps): Promise<GetPositionsResponse | false> {
   const response = await authenticateRequest<GetPositionsResponse>({
     method: 'get',
     url: `/api/v1/admin/positions`,

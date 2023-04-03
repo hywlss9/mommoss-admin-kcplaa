@@ -21,7 +21,7 @@ export async function updateOrganization({
   path,
   data,
   headers,
-}: UpdateOrganizationProps): Promise<UpdateOrganizationResponse> {
+}: UpdateOrganizationProps): Promise<UpdateOrganizationResponse | false> {
   const response = await authenticateRequest<UpdateOrganizationResponse>({
     method: 'patch',
     url: `/api/v1/admin/organizations/teams/${path.teamId}`,

@@ -21,15 +21,18 @@ import type * as T from './type';
 const PAGE_SIZE: number = 10;
 
 function SituationTable() {
-  const { data: pushCategories } = useGetPushCategories();
-
   const [sendContentType, setMessageType] = useState<T.SendContentType>('push');
   const [selectedSituations, setSelectedSituations] = useState<T.PushSituationTableDataSource>([]);
   const [searchValue, setSearchValue] = useState<string | undefined>();
   const [page, setPage] = useState<number>(1);
   const [dir, setDir] = useState<GetPushesQuery['dir']>('desc');
 
-  const { data: pushes, isLoading } = useGetPushes({ page, q: searchValue, dir, limit: PAGE_SIZE });
+  const {
+    data: pushes,
+    total,
+    isLoading,
+  } = useGetPushes({ page, q: searchValue, dir, limit: PAGE_SIZE });
+  const { data: pushCategories } = useGetPushCategories();
 
   const dataSource: T.PushSituationTableDataSource = useMemo(() => {
     return pushes.map(v => ({ ...v, key: v.id }));
@@ -48,7 +51,9 @@ function SituationTable() {
       title: '유형',
       width: '10%',
       render: categoryId => {
-        const findCategoryName = pushCategories?.find(({ id }) => id === categoryId)?.name || '';
+        const findCategoryName = pushCategories
+          ? pushCategories?.find(({ id }) => id === categoryId)?.name || ''
+          : '';
 
         return <>{findCategoryName}</>;
       },
@@ -131,7 +136,7 @@ function SituationTable() {
       render: (_, { results }) => {
         const total = results ? results.length : 0;
         const isSuccessArr = results ? results.filter(({ status }) => status === 'success') : [];
-        const reactionRate = (isSuccessArr.length / total) * 100;
+        const reactionRate = Math.round((isSuccessArr.length / total) * 100) / 100;
 
         return <>{reactionRate || 0}%</>;
       },
@@ -163,11 +168,15 @@ function SituationTable() {
       return false;
     }
 
+    setPage(1);
     setSearchValue(value.length > 1 ? value : undefined);
   };
 
   const handleSearchText = ({ target: { value } }: ChangeEvent<HTMLInputElement>) => {
-    if (!value) setSearchValue(undefined);
+    if (!value && searchValue) {
+      setPage(1);
+      setSearchValue(undefined);
+    }
   };
 
   return (
@@ -196,11 +205,12 @@ function SituationTable() {
           onSelectAll: selectAll,
         }}
         pagination={{
+          total,
+          current: page,
+          pageSize: PAGE_SIZE,
           position: ['bottomCenter'],
-          total: dataSource.length,
           showSizeChanger: false,
           onChange: setPage,
-          pageSize: PAGE_SIZE,
         }}
       />
     </>

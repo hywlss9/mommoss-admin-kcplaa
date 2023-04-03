@@ -7,7 +7,6 @@ import update from 'immutability-helper';
 
 import useGetOrganization from '@hooks/queries/group/useGetOrganization';
 import useGetPositions from '@hooks/queries/group/useGetPositions';
-import useGetRoles from '@hooks/queries/group/useGetRoles';
 
 import colors from '@constants/colors';
 

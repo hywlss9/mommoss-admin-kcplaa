@@ -16,7 +16,7 @@ type DeleteNoticeResponse = number;
 export async function deleteNotice({
   path,
   headers,
-}: DeleteNoticeCategoryProps): Promise<DeleteNoticeResponse> {
+}: DeleteNoticeCategoryProps): Promise<DeleteNoticeResponse | false> {
   const response = await authenticateRequest<DeleteNoticeResponse>({
     method: 'delete',
     url: `/api/v1/admin/notices/${path.noticeId}`,

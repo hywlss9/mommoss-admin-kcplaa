@@ -17,7 +17,7 @@ type GetNoticesDetailResponse = Notice;
 export async function getNoticeDetail({
   path,
   headers,
-}: GetNoticesProps): Promise<GetNoticesDetailResponse> {
+}: GetNoticesProps): Promise<GetNoticesDetailResponse | false> {
   const response = await authenticateRequest<GetNoticesDetailResponse>({
     method: 'get',
     url: `/api/v1/admin/notices/${path.noticeId}`,

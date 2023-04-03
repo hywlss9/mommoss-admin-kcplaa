@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 
 import { postSurvey } from '@api/survey/postSurvey';
 
+import getIsResponseFalse from '@utils/getIsResponseFalse';
+
 import colors from '@constants/colors';
 
 import SurveySetting from './Setting';
@@ -56,10 +58,13 @@ function WriteSurveyForm({ survey, setSurvey }: T.WriteSurveyFormProps) {
       },
     });
 
-    if (response) {
-      message.success('설문을 생성했습니다.');
-      navigate('/service/survey?menu=list');
+    if (getIsResponseFalse(response)) {
+      message.error('설문 생성에 실패했습니다.');
+      return false;
     }
+
+    message.success('설문을 생성했습니다.');
+    navigate('/service/survey?menu=list');
   };
 
   return (

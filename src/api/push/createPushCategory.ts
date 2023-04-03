@@ -17,7 +17,7 @@ type CreatePushCategoryResponse = unknown;
 export async function createPushCategory({
   data,
   headers,
-}: CreatePushCategoryProps): Promise<CreatePushCategoryResponse> {
+}: CreatePushCategoryProps): Promise<CreatePushCategoryResponse | false> {
   const response = await authenticateRequest<CreatePushCategoryResponse>({
     method: 'post',
     url: `/api/v1/admin/notifications/categories`,

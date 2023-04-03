@@ -1,30 +1,26 @@
-import type { Group } from '@type/group';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
-const SET_GROUP = 'group/SET_GROUP' as const;
+import type { Group as GroupInfo } from '@type/group';
 
-export const setGroup = (group: Group | null) => ({
-  type: SET_GROUP,
-  payload: group,
+interface Group {
+  groupInfo: GroupInfo | null;
+}
+
+const initialState: Group = { groupInfo: null };
+
+const group = createSlice({
+  name: 'group',
+  initialState,
+  reducers: {
+    setGroupInfo: (state, action: PayloadAction<GroupInfo>) => {
+      state.groupInfo = action.payload;
+    },
+    resetGroup: state => {
+      state = initialState;
+    },
+  },
 });
 
-type GroupAction = ReturnType<typeof setGroup>;
-
-interface GroupState {
-  groupInfo: Group | null;
-}
-
-const initialState: GroupState = {
-  groupInfo: null,
-};
-
-function group(state: GroupState = initialState, action: GroupAction): GroupState {
-  switch (action.type) {
-    case SET_GROUP: {
-      return { ...state, groupInfo: action.payload };
-    }
-    default:
-      return state;
-  }
-}
-
-export default group;
+export const { setGroupInfo, resetGroup } = group.actions;
+export default group.reducer;
